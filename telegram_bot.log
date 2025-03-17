@@ -1,0 +1,937 @@
+2025-03-13 17:33:07,792 - apscheduler.scheduler - INFO - Scheduler started
+2025-03-13 17:33:13,160 - __main__ - ERROR - Ошибка при запуске Telegram бота: Timed out
+2025-03-13 17:37:14,098 - apscheduler.scheduler - INFO - Scheduler started
+2025-03-13 17:37:14,520 - __main__ - INFO - Telegram бот запущен
+2025-03-13 17:37:15,003 - __main__ - INFO - Бот запущен пользователем Aleksandr (ID: 6011283034). Chat ID: 6011283034
+2025-03-13 17:40:23,130 - apscheduler.scheduler - INFO - Scheduler started
+2025-03-13 17:40:23,546 - __main__ - INFO - Telegram бот запущен
+2025-03-13 17:47:58,918 - apscheduler.scheduler - INFO - Scheduler started
+2025-03-13 17:47:59,339 - __main__ - INFO - Telegram бот запущен
+2025-03-13 17:47:59,757 - __main__ - INFO - Бот запущен пользователем Aleksandr (ID: 6011283034). Chat ID: 6011283034
+2025-03-13 17:51:11,076 - __main__ - INFO - Бот запущен пользователем Aleksandr (ID: 6011283034). Chat ID: 6011283034
+2025-03-13 17:51:22,760 - apscheduler.scheduler - INFO - Scheduler started
+2025-03-13 17:51:23,168 - __main__ - INFO - Telegram бот запущен
+2025-03-13 17:51:23,237 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:23,237 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:27,271 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:27,271 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:28,326 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:28,326 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:32,855 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:32,855 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:34,397 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:34,397 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:39,683 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:39,684 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:41,973 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:41,974 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:45,366 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:45,366 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:48,787 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:48,787 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:53,892 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:53,892 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:58,986 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:51:58,986 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:52:06,618 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:52:06,618 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:52:14,249 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:52:14,250 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:52:25,673 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:52:25,673 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:52:29,708 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:52:29,708 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:52:46,839 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:52:46,839 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:52:50,874 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:52:50,874 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:53:16,548 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:53:16,548 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:53:20,576 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:53:20,576 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 17:54:01,213 - apscheduler.scheduler - INFO - Scheduler started
+2025-03-13 17:54:01,636 - __main__ - INFO - Telegram бот запущен
+2025-03-13 17:57:44,256 - apscheduler.scheduler - INFO - Scheduler started
+2025-03-13 17:57:44,658 - __main__ - INFO - Telegram бот запущен
+2025-03-13 17:58:04,961 - __main__ - INFO - Бот запущен пользователем Aleksandr (ID: 6011283034). Chat ID: 6011283034
+2025-03-13 17:58:04,967 - __main__ - INFO - Сохранен chat_id: 6011283034
+2025-03-13 18:01:09,661 - __main__ - INFO - Загружен chat_id: 6011283034
+2025-03-13 18:01:09,667 - apscheduler.scheduler - INFO - Scheduler started
+2025-03-13 18:01:10,132 - __main__ - INFO - Telegram бот запущен
+2025-03-13 18:04:22,345 - __main__ - INFO - Бот запущен пользователем Aleksandr (ID: 6011283034). Chat ID: -600437720
+2025-03-13 18:04:22,345 - __main__ - INFO - Сохранен chat_id: -600437720
+2025-03-13 18:04:42,886 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 18:04:42,889 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 18:04:47,959 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 18:04:47,959 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 18:04:54,015 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 18:04:54,015 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 18:05:01,598 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 18:05:01,598 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 18:05:08,425 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 18:05:08,426 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 18:05:18,629 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 18:05:18,629 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 18:05:33,896 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 18:05:33,896 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 18:05:49,357 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 18:05:49,357 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 18:06:10,515 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 18:06:10,516 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 18:06:40,727 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-13 18:06:40,727 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-14 15:23:33,890 - __main__ - INFO - Загружен chat_id: -600437720
+2025-03-14 15:23:33,902 - apscheduler.scheduler - INFO - Scheduler started
+2025-03-14 15:23:34,329 - __main__ - INFO - Telegram бот запущен
+2025-03-14 15:23:44,812 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-14 15:23:44,812 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-14 15:23:49,875 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-14 15:23:49,876 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-14 15:23:55,945 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-14 15:23:55,945 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-14 15:24:03,534 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-14 15:24:03,535 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-14 15:24:10,350 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-14 15:24:10,350 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-14 15:24:20,569 - telegram.ext.updater - ERROR - Error while getting Updates: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2025-03-14 15:24:20,569 - telegram.ext.dispatcher - ERROR - No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 646, in _network_loop_retry
+    if not action_cb():
+           ^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\updater.py", line 597, in polling_action_cb
+    updates = self.bot.get_updates(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\ext\extbot.py", line 222, in get_updates
+    updates = super().get_updates(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 130, in decorator
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 2861, in get_updates
+    self._post(
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\bot.py", line 295, in _post
+    return self.request.post(
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 356, in post
+    result = self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Cursor Projects\Market Umbrella\.venv\Lib\site-packages\telegram\utils\request.py", line 283, in _request_wrapper
+    raise Conflict(message)
+telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running

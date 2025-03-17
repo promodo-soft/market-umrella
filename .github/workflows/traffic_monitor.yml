@@ -8,15 +8,26 @@ on:
 jobs:
   monitor:
     runs-on: ubuntu-latest
-    container:
-      image: amancevice/pandas:1.2.4
     
     steps:
     - uses: actions/checkout@v2
     
-    - name: Install Python dependencies
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+        cache: 'pip'
+    
+    - name: Download wheels
+      run: |
+        mkdir -p wheels
+        curl -L -o wheels/pandas-1.2.4-cp38-cp38-manylinux1_x86_64.whl https://files.pythonhosted.org/packages/6a/f1/36f11d8f0925b72f419eb22471fd8827a392959f1b41f0d8f44f6ec12f0f/pandas-1.2.4-cp38-cp38-manylinux1_x86_64.whl
+        curl -L -o wheels/numpy-1.19.5-cp38-cp38-manylinux2010_x86_64.whl https://files.pythonhosted.org/packages/3d/fc/4961cfc85cc4f66fe86c24e552c5fb8a19fd6e81892706b91c1e91e1082a/numpy-1.19.5-cp38-cp38-manylinux2010_x86_64.whl
+    
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        pip install wheels/*.whl
         pip install -r requirements.txt
     
     - name: Run monitor

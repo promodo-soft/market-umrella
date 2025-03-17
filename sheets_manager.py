@@ -1,7 +1,8 @@
 import os
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
+import pandas as pd
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
@@ -63,8 +64,9 @@ class SheetsManager:
                     # Создаем историю из текущего и предыдущего значения
                     history = []
                     if previous_traffic > 0:
+                        prev_date = (datetime.strptime(date, '%Y-%m-%d') - timedelta(days=1)).strftime('%Y-%m-%d')
                         history.append({
-                            'date': (datetime.strptime(date, '%Y-%m-%d') - pd.Timedelta(days=1)).strftime('%Y-%m-%d'),
+                            'date': prev_date,
                             'traffic': previous_traffic
                         })
                     

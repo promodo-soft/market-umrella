@@ -80,14 +80,33 @@ class SheetsManager:
                     
                     history = []
                     if previous_traffic > 0:
-                        prev_date = (datetime.strptime(date, '%Y-%m-%d') - timedelta(days=1)).strftime('%Y-%m-%d')
-                        history.append({
-                            'date': prev_date,
-                            'traffic': previous_traffic
-                        })
+                        # Извлекаем только дату из строки даты/времени
+                        try:
+                            # Пробуем разные форматы даты
+                            if ' ' in date:  # Если есть пробел, значит есть время
+                                date_obj = datetime.strptime(date.split(' ')[0], '%Y-%m-%d')
+                            else:
+                                date_obj = datetime.strptime(date, '%Y-%m-%d')
+                            
+                            prev_date = (date_obj - timedelta(days=1)).strftime('%Y-%m-%d')
+                            history.append({
+                                'date': prev_date,
+                                'traffic': previous_traffic
+                            })
+                        except ValueError as e:
+                            logger.warning(f"Ошибка при обработке даты '{date}': {str(e)}")
+                            # Используем текущую дату как запасной вариант
+                            date_obj = datetime.now()
+                            prev_date = (date_obj - timedelta(days=1)).strftime('%Y-%m-%d')
+                            history.append({
+                                'date': prev_date,
+                                'traffic': previous_traffic
+                            })
                     
+                    # Используем только дату без времени для истории
+                    current_date = date.split(' ')[0] if ' ' in date else date
                     history.append({
-                        'date': date,
+                        'date': current_date,
                         'traffic': current_traffic
                     })
                     
@@ -132,6 +151,8 @@ class SheetsManager:
                     current_date
                 ])
             
+            logger.info(f"Подготовлено {len(values)} доменов для сохранения")
+            
             body = {
                 'values': values
             }
@@ -143,15 +164,18 @@ class SheetsManager:
             ).execute()
             
             # Записываем новые данные
-            self.sheet.values().update(
+            result = self.sheet.values().update(
                 spreadsheetId=self.sheet_id,
                 range='Traffic!A2',
                 valueInputOption='RAW',
                 body=body
             ).execute()
             
-            logger.info("Данные успешно сохранены в Google Sheets")
+            logger.info(f"Данные успешно сохранены в Google Sheets: {result.get('updatedCells')} ячеек обновлено")
             return True
         except Exception as e:
             logger.error(f"Ошибка при сохранении данных в Google Sheets: {str(e)}")
+            logger.error(f"Error type: {type(e)}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
             return False 

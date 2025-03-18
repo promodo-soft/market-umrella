@@ -126,14 +126,21 @@ def analyze_traffic_changes(domains_data):
     critical_changes = []
     consecutive_drops = []
     
+    logger.info(f"Анализируем изменения трафика для {len(domains_data)} доменов")
+    
     for domain, data in domains_data.items():
         history = data.get('history', [])
         if len(history) >= 2:
-            current_traffic = history[-1]['traffic']
-            previous_traffic = history[-2]['traffic']
+            current_traffic = history[0]['traffic']  # Текущий трафик теперь первый в истории
+            previous_traffic = history[1]['traffic']  # Предыдущий - второй
+            
+            # Логируем все изменения трафика для диагностики
+            change_percent = ((current_traffic - previous_traffic) / previous_traffic) * 100 if previous_traffic > 0 else 0
+            logger.info(f"Домен {domain}: текущий трафик {current_traffic}, предыдущий {previous_traffic}, изменение {change_percent:.1f}%")
             
             # Пропускаем домены с трафиком меньше 1000
             if current_traffic < 1000 or previous_traffic < 1000:
+                logger.info(f"Пропускаем домен {domain} из-за недостаточного трафика")
                 continue
             
             # Вычисляем изменение в процентах
@@ -141,6 +148,7 @@ def analyze_traffic_changes(domains_data):
             
             # Проверяем условия падения трафика
             if change <= -11:  # Резкое падение более 11%
+                logger.info(f"Обнаружено резкое падение для {domain}: {change:.1f}%")
                 critical_changes.append({
                     'domain': domain,
                     'traffic': current_traffic,
@@ -148,16 +156,21 @@ def analyze_traffic_changes(domains_data):
                     'type': 'sharp'
                 })
             elif len(history) >= 3:  # Проверяем два последовательных падения
-                traffic_before_previous = history[-3]['traffic']
+                traffic_before_previous = history[2]['traffic']  # Третий в истории
                 if traffic_before_previous >= 1000:
                     previous_change = ((previous_traffic - traffic_before_previous) / traffic_before_previous) * 100
                     if previous_change <= -5 and change <= -5:  # Два последовательных падения по 5%
+                        logger.info(f"Обнаружено последовательное падение для {domain}: текущее {change:.1f}%, предыдущее {previous_change:.1f}%")
                         consecutive_drops.append({
                             'domain': domain,
                             'traffic': current_traffic,
                             'change': change,
                             'prev_change': previous_change
                         })
+    
+    # Логирование результатов
+    logger.info(f"Обнаружено резких падений: {len(critical_changes)}")
+    logger.info(f"Обнаружено последовательных падений: {len(consecutive_drops)}")
     
     # Формируем сообщение
     if not critical_changes and not consecutive_drops:
@@ -168,15 +181,15 @@ def analyze_traffic_changes(domains_data):
     # Сначала выводим резкие падения
     if critical_changes:
         message += "📉 Резкое падение:\n"
-        for change in critical_changes:
-            message += f"{change['domain']}: {change['traffic']:,} (падение {change['change']:.1f}%)\n"
+        for change in sorted(critical_changes, key=lambda x: x['change']):
+            message += f"{change['domain']}: {change['traffic']:,} (падение {abs(change['change']):.1f}%)\n"
         message += "\n"
     
     # Затем выводим последовательные падения
     if consecutive_drops:
         message += "📉 Последовательное падение:\n"
-        for drop in consecutive_drops:
-            message += f"{drop['domain']}: {drop['traffic']:,} (падение {drop['change']:.1f}%, пред. {drop['prev_change']:.1f}%)\n"
+        for drop in sorted(consecutive_drops, key=lambda x: x['change']):
+            message += f"{drop['domain']}: {drop['traffic']:,} (падение {abs(drop['change']):.1f}%, пред. {abs(drop['prev_change']):.1f}%)\n"
     
     return True, message
 

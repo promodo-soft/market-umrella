@@ -219,27 +219,6 @@ def run_test():
         service = build('sheets', 'v4', credentials=creds)
         sheet = service.spreadsheets()
         
-        # Проверяем наличие данных в таблице
-        result = sheet.values().get(
-            spreadsheetId=sheet_id,
-            range='Traffic!A1:ZZ'  # Расширяем диапазон для чтения всей истории
-        ).execute()
-        
-        values = result.get('values', [])
-        current_date = datetime.now().strftime('%Y-%m-%d')
-        
-        if not values:
-            # Если таблица пустая, создаем новую с заголовками
-            logger.info("No data found in sheet, initializing with headers")
-            headers = [['Domain', current_date]]
-            sheet.values().update(
-                spreadsheetId=sheet_id,
-                range='Traffic!A1',
-                valueInputOption='RAW',
-                body={'values': headers}
-            ).execute()
-            values = headers
-        
         # Получаем список доменов из файла
         try:
             with open('domains.txt', 'r', encoding='utf-8') as f:
@@ -249,17 +228,27 @@ def run_test():
             logger.error(f"Ошибка при чтении файла domains.txt: {str(e)}")
             raise
 
-        # ВРЕМЕННО: Всегда собираем новые данные для тестирования API
+        # Собираем новые данные о трафике
         logger.info("Начинаем сбор данных о трафике...")
+        current_date = datetime.now().strftime('%Y-%m-%d')
         
         # Подготавливаем новые данные
         new_data = []
         for domain in domains:
+            logger.info(f"Запрашиваем данные для домена: {domain}")
             traffic = get_organic_traffic(domain)
             new_data.append([domain, traffic])
             logger.info(f"Получен трафик для {domain}: {traffic}")
         
+        # Очищаем старые данные
+        logger.info("Очищаем старые данные в таблице")
+        sheet.values().clear(
+            spreadsheetId=sheet_id,
+            range='Traffic!A1:ZZ'
+        ).execute()
+        
         # Обновляем данные в таблице
+        logger.info("Записываем новые данные в таблицу")
         body = {
             'values': [['Domain', current_date]] + new_data
         }

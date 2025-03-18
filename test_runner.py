@@ -1,6 +1,7 @@
 import logging
 import os
 import json
+import pandas as pd
 from datetime import datetime, timedelta
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
@@ -11,6 +12,77 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+def init_sheet(service, sheet_id):
+    """
+    Инициализирует Google Sheet данными из Excel файла
+    """
+    try:
+        logger.info("Initializing Google Sheet")
+        sheet = service.spreadsheets()
+        
+        # Чтение данных из Excel файла
+        logger.info("Reading data from Excel file")
+        try:
+            df = pd.read_excel('traffic_data.xlsx')
+            logger.info(f"Read {len(df)} rows from Excel file")
+        except Exception as e:
+            logger.error(f"Error reading Excel file: {str(e)}")
+            raise
+        
+        # Подготовка данных для Google Sheets
+        headers = [['Domain', 'Current Traffic', 'Previous Traffic', 'Date']]
+        values = []
+        
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        
+        # Используем данные из Excel
+        for _, row in df.iterrows():
+            try:
+                domain = row['Domain']
+                current_traffic = int(row['Traffic'])
+                previous_traffic = int(row.get('Previous Traffic', current_traffic))  # Если нет предыдущего трафика, используем текущий
+                
+                values.append([
+                    domain,
+                    current_traffic,
+                    previous_traffic,
+                    current_date
+                ])
+            except Exception as e:
+                logger.warning(f"Error processing row for domain {row.get('Domain', 'unknown')}: {str(e)}")
+        
+        logger.info(f"Prepared {len(values)} domains for upload")
+        
+        # Очистка старых данных
+        try:
+            sheet.values().clear(
+                spreadsheetId=sheet_id,
+                range='Traffic!A1:D1000',
+            ).execute()
+            logger.info("Cleared old data")
+        except Exception as e:
+            logger.error(f"Error clearing old data: {str(e)}")
+            raise
+        
+        # Запись заголовков и данных
+        all_values = headers + values
+        body = {'values': all_values}
+        
+        result = sheet.values().update(
+            spreadsheetId=sheet_id,
+            range='Traffic!A1',
+            valueInputOption='RAW',
+            body=body
+        ).execute()
+        
+        logger.info(f"Successfully initialized Google Sheet with {len(values)} domains: {result.get('updatedCells')} cells updated")
+        return True
+    except Exception as e:
+        logger.error(f"Error initializing Google Sheet: {str(e)}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        return False
 
 def run_test():
     """
@@ -51,14 +123,21 @@ def run_test():
         service = build('sheets', 'v4', credentials=creds)
         sheet = service.spreadsheets()
         
-        # Загрузка данных из Google Sheets
-        logger.info(f"Loading data from sheet {sheet_id}")
+        # Проверяем наличие данных в таблице
         result = sheet.values().get(
             spreadsheetId=sheet_id,
             range='Traffic!A2:D'
         ).execute()
         
         values = result.get('values', [])
+        
+        # Если данных нет, инициализируем таблицу
+        if not values:
+            logger.info("No data found in sheet, initializing with data from Excel")
+            if not init_sheet(service, sheet_id):
+                raise Exception("Failed to initialize sheet")
+            return True
+        
         logger.info(f"Loaded {len(values)} rows from sheet")
         
         domains_data = {}
@@ -73,10 +152,8 @@ def run_test():
                 
                 history = []
                 if previous_traffic > 0:
-                    # Извлекаем только дату из строки даты/времени
                     try:
-                        # Пробуем разные форматы даты
-                        if ' ' in date:  # Если есть пробел, значит есть время
+                        if ' ' in date:
                             date_obj = datetime.strptime(date.split(' ')[0], '%Y-%m-%d')
                         else:
                             date_obj = datetime.strptime(date, '%Y-%m-%d')
@@ -88,7 +165,6 @@ def run_test():
                         })
                     except ValueError as e:
                         logger.warning(f"Ошибка при обработке даты '{date}': {str(e)}")
-                        # Используем текущую дату как запасной вариант
                         date_obj = datetime.now()
                         prev_date = (date_obj - timedelta(days=1)).strftime('%Y-%m-%d')
                         history.append({
@@ -96,7 +172,6 @@ def run_test():
                             'traffic': previous_traffic
                         })
                 
-                # Используем только дату без времени для истории
                 current_date = date.split(' ')[0] if ' ' in date else date
                 history.append({
                     'date': current_date,
@@ -119,7 +194,6 @@ def run_test():
             history = data.get('history', [])
             current_traffic = data['traffic']
             
-            # Получаем предыдущее значение трафика
             previous_traffic = 0
             if len(history) >= 2:
                 previous_traffic = history[-2]['traffic']
@@ -137,7 +211,7 @@ def run_test():
             'values': values
         }
         
-        # Очищаем старые данные
+        # Очищаем старые данные (начиная со второй строки, чтобы сохранить заголовки)
         sheet.values().clear(
             spreadsheetId=sheet_id,
             range='Traffic!A2:D',

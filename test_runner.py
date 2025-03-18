@@ -159,6 +159,22 @@ def run_test():
         
         logger.info(f"Loaded {len(values)} rows from sheet")
         
+        # Проверяем дату последнего обновления
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        last_update_date = values[0][3].split(' ')[0] if values and len(values[0]) >= 4 else None
+        
+        if last_update_date == current_date:
+            logger.info(f"Данные уже обновлены сегодня ({current_date}). Пропускаем сбор данных.")
+            
+            # Отправляем уведомление в Telegram о пропуске обновления
+            message = f"ℹ️ Данные уже обновлены сегодня ({current_date})\nКоличество доменов: {len(values)}"
+            telegram_result = send_message(message)
+            logger.info(f"Результат отправки в Telegram: {'успешно' if telegram_result else 'ошибка'}")
+            
+            return True
+        
+        logger.info(f"Требуется обновление данных. Последнее обновление: {last_update_date}, текущая дата: {current_date}")
+        
         domains_data = {}
         
         for row in values:

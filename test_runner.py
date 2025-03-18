@@ -219,6 +219,27 @@ def run_test():
         service = build('sheets', 'v4', credentials=creds)
         sheet = service.spreadsheets()
         
+        # Проверяем наличие данных в таблице
+        result = sheet.values().get(
+            spreadsheetId=sheet_id,
+            range='Traffic!A1:ZZ'  # Расширяем диапазон для чтения всей истории
+        ).execute()
+        
+        values = result.get('values', [])
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        
+        if not values:
+            # Если таблица пустая, создаем новую с заголовками
+            logger.info("No data found in sheet, initializing with headers")
+            headers = [['Domain', current_date]]
+            sheet.values().update(
+                spreadsheetId=sheet_id,
+                range='Traffic!A1',
+                valueInputOption='RAW',
+                body={'values': headers}
+            ).execute()
+            values = headers
+        
         # Получаем список доменов из файла
         try:
             with open('domains.txt', 'r', encoding='utf-8') as f:
@@ -228,42 +249,109 @@ def run_test():
             logger.error(f"Ошибка при чтении файла domains.txt: {str(e)}")
             raise
 
-        # Собираем новые данные о трафике
-        logger.info("Начинаем сбор данных о трафике...")
-        current_date = datetime.now().strftime('%Y-%m-%d')
+        # Проверяем, есть ли уже данные за сегодня
+        headers = values[0] if values else []
+        if len(headers) > 1 and headers[1] == current_date:
+            logger.info(f"Данные уже обновлены сегодня ({current_date}). Проверяем изменения трафика.")
+            
+            # Анализируем изменения трафика
+            domains_data = {}
+            for row in values[1:]:  # Пропускаем заголовки
+                if len(row) >= 2:
+                    domain = row[0]
+                    history = []
+                    
+                    # Собираем историю трафика
+                    for i in range(1, len(row)):
+                        if i < len(headers):  # Проверяем, что у нас есть соответствующая дата в заголовках
+                            try:
+                                traffic = int(row[i])
+                                history.append({
+                                    'date': headers[i],
+                                    'traffic': traffic
+                                })
+                            except (ValueError, TypeError):
+                                continue
+                    
+                    if history:
+                        domains_data[domain] = {
+                            'traffic': history[-1]['traffic'],
+                            'history': history
+                        }
+            
+            # Анализируем изменения и отправляем уведомление
+            has_changes, message = analyze_traffic_changes(domains_data)
+            telegram_result = send_message(message)
+            logger.info(f"Результат отправки в Telegram: {'успешно' if telegram_result else 'ошибка'}")
+            
+            return True
+        
+        # Если данных за сегодня нет, добавляем новый столбец
+        logger.info(f"Добавляем данные за {current_date}")
+        
+        # Создаем словарь с текущими данными по доменам
+        existing_domains = {row[0]: row[1:] for row in values[1:]} if len(values) > 1 else {}
         
         # Подготавливаем новые данные
-        new_data = []
-        for domain in domains:
-            logger.info(f"Запрашиваем данные для домена: {domain}")
-            traffic = get_organic_traffic(domain)
-            new_data.append([domain, traffic])
-            logger.info(f"Получен трафик для {domain}: {traffic}")
+        new_values = [['Domain', current_date] + headers[1:] if headers else ['Domain', current_date]]
         
-        # Очищаем старые данные
-        logger.info("Очищаем старые данные в таблице")
+        # Обрабатываем каждый домен
+        for domain in domains:
+            # Получаем текущий трафик из Ahrefs
+            logger.info(f"Запрашиваем данные для домена: {domain}")
+            current_traffic = get_organic_traffic(domain)
+            logger.info(f"Домен {domain}: трафик = {current_traffic}")
+            
+            domain_row = [domain, str(current_traffic)]
+            
+            # Добавляем исторические данные
+            if domain in existing_domains:
+                domain_row.extend(existing_domains[domain])
+            
+            new_values.append(domain_row)
+        
+        # Очищаем весь лист и записываем новые данные
         sheet.values().clear(
             spreadsheetId=sheet_id,
             range='Traffic!A1:ZZ'
         ).execute()
         
-        # Обновляем данные в таблице
-        logger.info("Записываем новые данные в таблицу")
-        body = {
-            'values': [['Domain', current_date]] + new_data
-        }
-        
-        update_result = sheet.values().update(
+        result = sheet.values().update(
             spreadsheetId=sheet_id,
             range='Traffic!A1',
             valueInputOption='RAW',
-            body=body
+            body={'values': new_values}
         ).execute()
         
-        logger.info(f"Данные успешно обновлены: {update_result.get('updatedCells')} ячеек")
+        logger.info(f"Данные успешно сохранены в Google Sheets: {result.get('updatedCells')} ячеек обновлено")
         
-        # Отправляем уведомление в Telegram
-        message = f"✅ Данные успешно обновлены\nОбработано доменов: {len(domains)}"
+        # Анализируем изменения трафика
+        domains_data = {}
+        for row in new_values[1:]:  # Пропускаем заголовки
+            if len(row) >= 2:
+                domain = row[0]
+                history = []
+                
+                # Собираем историю трафика
+                for i in range(1, len(row)):
+                    if i < len(new_values[0]):  # Проверяем, что у нас есть соответствующая дата в заголовках
+                        try:
+                            traffic = int(row[i])
+                            history.append({
+                                'date': new_values[0][i],
+                                'traffic': traffic
+                            })
+                        except (ValueError, TypeError):
+                            continue
+                
+                if history:
+                    domains_data[domain] = {
+                        'traffic': history[0]['traffic'],  # Текущий трафик теперь первый в истории
+                        'history': history
+                    }
+        
+        # Отправляем уведомление об изменениях
+        has_changes, message = analyze_traffic_changes(domains_data)
         telegram_result = send_message(message)
         logger.info(f"Результат отправки в Telegram: {'успешно' if telegram_result else 'ошибка'}")
         

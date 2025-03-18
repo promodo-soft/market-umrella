@@ -103,6 +103,73 @@ def init_sheet(service, sheet_id):
         
         return False
 
+def analyze_traffic_changes(domains_data):
+    """
+    Анализирует изменения трафика и формирует сообщение для Telegram.
+    
+    Args:
+        domains_data (dict): Словарь с данными о трафике по доменам
+        
+    Returns:
+        tuple: (bool, str) - (есть ли критические изменения, текст сообщения)
+    """
+    critical_changes = []
+    consecutive_drops = []
+    
+    for domain, data in domains_data.items():
+        history = data.get('history', [])
+        if len(history) >= 2:
+            current_traffic = history[-1]['traffic']
+            previous_traffic = history[-2]['traffic']
+            
+            # Пропускаем домены с трафиком меньше 1000
+            if current_traffic < 1000 or previous_traffic < 1000:
+                continue
+            
+            # Вычисляем изменение в процентах
+            change = ((current_traffic - previous_traffic) / previous_traffic) * 100
+            
+            # Проверяем условия падения трафика
+            if change <= -11:  # Резкое падение более 11%
+                critical_changes.append({
+                    'domain': domain,
+                    'traffic': current_traffic,
+                    'change': change,
+                    'type': 'sharp'
+                })
+            elif len(history) >= 3:  # Проверяем два последовательных падения
+                traffic_before_previous = history[-3]['traffic']
+                if traffic_before_previous >= 1000:
+                    previous_change = ((previous_traffic - traffic_before_previous) / traffic_before_previous) * 100
+                    if previous_change <= -5 and change <= -5:  # Два последовательных падения по 5%
+                        consecutive_drops.append({
+                            'domain': domain,
+                            'traffic': current_traffic,
+                            'change': change,
+                            'prev_change': previous_change
+                        })
+    
+    # Формируем сообщение
+    if not critical_changes and not consecutive_drops:
+        return False, "✅ Критических изменений трафика не обнаружено"
+    
+    message = "⚠️ Обнаружено падение трафика:\n\n"
+    
+    # Сначала выводим резкие падения
+    if critical_changes:
+        message += "📉 Резкое падение:\n"
+        for change in critical_changes:
+            message += f"{change['domain']}: {change['traffic']:,} (падение {change['change']:.1f}%)\n"
+        message += "\n"
+    
+    # Затем выводим последовательные падения
+    if consecutive_drops:
+        message += "📉 Последовательное падение:\n"
+        for drop in consecutive_drops:
+            message += f"{drop['domain']}: {drop['traffic']:,} (падение {drop['change']:.1f}%, пред. {drop['prev_change']:.1f}%)\n"
+    
+    return True, message
+
 def run_test():
     """
     Запускает тестовый режим с загрузкой и сохранением данных из Google Sheets
@@ -164,10 +231,35 @@ def run_test():
         last_update_date = values[0][3].split(' ')[0] if values and len(values[0]) >= 4 else None
         
         if last_update_date == current_date:
-            logger.info(f"Данные уже обновлены сегодня ({current_date}). Пропускаем сбор данных.")
+            logger.info(f"Данные уже обновлены сегодня ({current_date}). Проверяем изменения трафика.")
             
-            # Отправляем уведомление в Telegram о пропуске обновления
-            message = f"ℹ️ Данные уже обновлены сегодня ({current_date})\nКоличество доменов: {len(values)}"
+            # Загружаем данные для анализа
+            domains_data = {}
+            for row in values:
+                if len(row) >= 4:
+                    domain = row[0]
+                    current_traffic = int(row[1])
+                    previous_traffic = int(row[2])
+                    date = row[3]
+                    
+                    history = []
+                    if previous_traffic > 0:
+                        history.append({
+                            'date': (datetime.strptime(date, '%Y-%m-%d') - timedelta(days=1)).strftime('%Y-%m-%d'),
+                            'traffic': previous_traffic
+                        })
+                    history.append({
+                        'date': date,
+                        'traffic': current_traffic
+                    })
+                    
+                    domains_data[domain] = {
+                        'traffic': current_traffic,
+                        'history': history
+                    }
+            
+            # Анализируем изменения и отправляем уведомление
+            has_changes, message = analyze_traffic_changes(domains_data)
             telegram_result = send_message(message)
             logger.info(f"Результат отправки в Telegram: {'успешно' if telegram_result else 'ошибка'}")
             
@@ -263,9 +355,8 @@ def run_test():
         logger.info(f"Данные успешно сохранены в Google Sheets: {result.get('updatedCells')} ячеек обновлено")
         logger.info("Тест завершен успешно")
         
-        # Отправляем уведомление в Telegram
-        logger.info("Отправляем уведомление в Telegram об успешном обновлении")
-        message = f"✅ Данные успешно обновлены\nОбработано доменов: {len(values)}"
+        # Анализируем изменения трафика и отправляем уведомление
+        has_changes, message = analyze_traffic_changes(domains_data)
         telegram_result = send_message(message)
         logger.info(f"Результат отправки в Telegram: {'успешно' if telegram_result else 'ошибка'}")
         

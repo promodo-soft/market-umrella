@@ -68,7 +68,7 @@ def get_organic_traffic(domain):
                 logger.warning(f"[{domain}] Нет данных о трафике")
                 return 0
                 
-            traffic = metrics[-1].get("organic_traffic", 0)
+            traffic = metrics[-1].get("org_traffic", 0)
             logger.info(f"[{domain}] Успешно получен трафик: {traffic}")
             return int(traffic)
             

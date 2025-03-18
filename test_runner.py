@@ -14,6 +14,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Проверка наличия токена
+telegram_token = os.getenv('TELEGRAM_BOT_TOKEN')
+logger.info(f"Telegram token {'найден' if telegram_token else 'не найден'} в переменных окружения")
+
 def init_sheet(service, sheet_id):
     """
     Инициализирует Google Sheet данными из Excel файла

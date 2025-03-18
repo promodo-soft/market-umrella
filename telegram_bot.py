@@ -226,27 +226,39 @@ def send_message(message: str, parse_mode: str = None) -> bool:
     Returns:
         bool: True, если сообщение отправлено успешно, иначе False
     """
+    logger.info("Начинаем отправку сообщения в Telegram")
+    
     if not TELEGRAM_BOT_TOKEN:
         logger.error("Токен Telegram бота не настроен")
         return False
+    
+    logger.info(f"Токен бота найден, длина: {len(TELEGRAM_BOT_TOKEN)}")
         
     try:
         # Загружаем chat_id, если он не установлен
         if chat_id is None:
+            logger.info("chat_id не установлен, пытаемся загрузить из файла")
             load_chat_id()
             
         if chat_id is None:
             logger.error("ID чата не определен. Сначала запустите бота с помощью команды /start")
             return False
             
+        logger.info(f"Используем chat_id: {chat_id}")
+        
+        logger.info("Отправляем сообщение через API Telegram")
         get_updater().bot.send_message(
             chat_id=chat_id,
             text=message,
             parse_mode=parse_mode
         )
+        logger.info("Сообщение успешно отправлено")
         return True
     except Exception as e:
         logger.error(f"Ошибка при отправке сообщения в Telegram: {str(e)}")
+        logger.error(f"Тип ошибки: {type(e)}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
         return False
 
 def run_bot():

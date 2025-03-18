@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from telegram_bot import send_message
-from ahrefs_api import get_organic_traffic
+from ahrefs_api import get_organic_traffic, check_api_availability
 
 # Настройка логирования
 logging.basicConfig(
@@ -15,9 +15,18 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Проверка наличия токена
+# Проверка наличия токенов
 telegram_token = os.getenv('TELEGRAM_BOT_TOKEN')
+ahrefs_token = os.getenv('AHREFS_API_KEY')
 logger.info(f"Telegram token {'найден' if telegram_token else 'не найден'} в переменных окружения")
+logger.info(f"Ahrefs token {'найден' if ahrefs_token else 'не найден'} в переменных окружения")
+
+# Проверка доступности API Ahrefs
+if not check_api_availability():
+    error_message = "❌ API Ahrefs недоступно или неверный ключ API. Проверьте настройки."
+    logger.error(error_message)
+    send_message(error_message)
+    raise ValueError(error_message)
 
 def init_sheet(service, sheet_id):
     """

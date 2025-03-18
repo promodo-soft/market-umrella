@@ -26,6 +26,10 @@ def get_organic_traffic(domain):
         int: Значение органического трафика или 0 в случае ошибки
     """
     try:
+        if not AHREFS_API_KEY:
+            logger.error("AHREFS_API_KEY не найден в переменных окружения")
+            return 0
+
         conn = http.client.HTTPSConnection("api.ahrefs.com")
         
         headers = {
@@ -41,41 +45,43 @@ def get_organic_traffic(domain):
         
         logger.info(f"Отправка запроса к API для домена {domain}")
         logger.debug(f"URL: {endpoint}")
-        logger.debug(f"Заголовки: {headers}")
+        logger.debug(f"Даты запроса: с {date_from} по {date_to}")
         
         conn.request("GET", endpoint, headers=headers)
         response = conn.getresponse()
         data = response.read()
         
-        logger.debug(f"Статус ответа: {response.status}")
-        logger.debug(f"Заголовки ответа: {response.getheaders()}")
-        logger.debug(f"Ответ API: {data.decode('utf-8')}")
+        logger.info(f"Получен ответ от API для домена {domain}. Статус: {response.status}")
         
         if response.status == 200:
             json_data = json.loads(data.decode("utf-8"))
-            logger.debug(f"Распарсенный ответ: {json_data}")
             
-            try:
-                # Получаем последнее значение трафика из истории
-                metrics = json_data.get("metrics", [])
-                logger.debug(f"Метрики: {metrics}")
-                
-                if metrics:
-                    traffic = metrics[-1].get("organic_traffic", 0)
-                    logger.info(f"Получен трафик для домена {domain}: {traffic}")
-                    return int(traffic)
-                else:
-                    logger.warning(f"Нет данных о трафике для домена {domain}")
-                    return 0
-            except (KeyError, TypeError, IndexError) as e:
-                logger.warning(f"Не удалось получить данные о трафике для домена {domain}. Ошибка: {str(e)}. Ответ API: {json_data}")
+            # Получаем последнее значение трафика из истории
+            metrics = json_data.get("metrics", [])
+            
+            if not metrics:
+                logger.warning(f"Нет данных о трафике для домена {domain}")
                 return 0
+                
+            traffic = metrics[-1].get("organic_traffic", 0)
+            logger.info(f"Успешно получен трафик для домена {domain}: {traffic}")
+            return int(traffic)
+            
+        elif response.status == 401:
+            logger.error(f"Ошибка авторизации API Ahrefs. Проверьте ключ API. Ответ: {data.decode('utf-8')}")
+            return 0
+        elif response.status == 429:
+            logger.error(f"Превышен лимит запросов к API Ahrefs. Ответ: {data.decode('utf-8')}")
+            return 0
         else:
-            logger.error(f"Ошибка API Ahrefs: {response.status} - {data.decode('utf-8')}")
+            logger.error(f"Ошибка API Ahrefs ({response.status}): {data.decode('utf-8')}")
             return 0
             
+    except json.JSONDecodeError as e:
+        logger.error(f"Ошибка при разборе JSON ответа для домена {domain}: {str(e)}")
+        return 0
     except Exception as e:
-        logger.error(f"Ошибка при получении данных о трафике для домена {domain}: {str(e)}")
+        logger.error(f"Неожиданная ошибка при получении данных о трафике для домена {domain}: {str(e)}")
         return 0
     finally:
         conn.close()

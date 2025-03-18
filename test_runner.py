@@ -80,8 +80,10 @@ def init_sheet(service, sheet_id):
         logger.info(f"Successfully initialized Google Sheet with {len(values)} domains: {result.get('updatedCells')} cells updated")
         
         # Отправляем уведомление в Telegram
+        logger.info("Отправляем уведомление в Telegram об инициализации")
         message = f"✅ Таблица успешно инициализирована\nДобавлено доменов: {len(values)}"
-        send_message(message)
+        telegram_result = send_message(message)
+        logger.info(f"Результат отправки в Telegram: {'успешно' if telegram_result else 'ошибка'}")
         
         return True
     except Exception as e:
@@ -90,8 +92,10 @@ def init_sheet(service, sheet_id):
         logger.error(f"Traceback: {traceback.format_exc()}")
         
         # Отправляем уведомление об ошибке в Telegram
+        logger.info("Отправляем уведомление об ошибке в Telegram")
         error_message = f"❌ Ошибка при инициализации таблицы:\n{str(e)}"
-        send_message(error_message)
+        telegram_result = send_message(error_message)
+        logger.info(f"Результат отправки ошибки в Telegram: {'успешно' if telegram_result else 'ошибка'}")
         
         return False
 
@@ -240,8 +244,10 @@ def run_test():
         logger.info("Тест завершен успешно")
         
         # Отправляем уведомление в Telegram
+        logger.info("Отправляем уведомление в Telegram об успешном обновлении")
         message = f"✅ Данные успешно обновлены\nОбработано доменов: {len(values)}"
-        send_message(message)
+        telegram_result = send_message(message)
+        logger.info(f"Результат отправки в Telegram: {'успешно' if telegram_result else 'ошибка'}")
         
         return True
     except Exception as e:
@@ -251,8 +257,10 @@ def run_test():
         logger.error(f"Traceback: {traceback.format_exc()}")
         
         # Отправляем уведомление об ошибке в Telegram
+        logger.info("Отправляем уведомление об ошибке в Telegram")
         error_message = f"❌ Ошибка при обновлении данных:\n{str(e)}"
-        send_message(error_message)
+        telegram_result = send_message(error_message)
+        logger.info(f"Результат отправки ошибки в Telegram: {'успешно' if telegram_result else 'ошибка'}")
         
         return False
 

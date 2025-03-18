@@ -5,6 +5,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+from telegram_bot import send_message
 
 # Настройка логирования
 logging.basicConfig(
@@ -77,11 +78,21 @@ def init_sheet(service, sheet_id):
         ).execute()
         
         logger.info(f"Successfully initialized Google Sheet with {len(values)} domains: {result.get('updatedCells')} cells updated")
+        
+        # Отправляем уведомление в Telegram
+        message = f"✅ Таблица успешно инициализирована\nДобавлено доменов: {len(values)}"
+        send_message(message)
+        
         return True
     except Exception as e:
         logger.error(f"Error initializing Google Sheet: {str(e)}")
         import traceback
         logger.error(f"Traceback: {traceback.format_exc()}")
+        
+        # Отправляем уведомление об ошибке в Telegram
+        error_message = f"❌ Ошибка при инициализации таблицы:\n{str(e)}"
+        send_message(error_message)
+        
         return False
 
 def run_test():
@@ -228,12 +239,21 @@ def run_test():
         logger.info(f"Данные успешно сохранены в Google Sheets: {result.get('updatedCells')} ячеек обновлено")
         logger.info("Тест завершен успешно")
         
+        # Отправляем уведомление в Telegram
+        message = f"✅ Данные успешно обновлены\nОбработано доменов: {len(values)}"
+        send_message(message)
+        
         return True
     except Exception as e:
         logger.error(f"Ошибка при выполнении теста: {str(e)}")
         logger.error(f"Error type: {type(e)}")
         import traceback
         logger.error(f"Traceback: {traceback.format_exc()}")
+        
+        # Отправляем уведомление об ошибке в Telegram
+        error_message = f"❌ Ошибка при обновлении данных:\n{str(e)}"
+        send_message(error_message)
+        
         return False
 
 if __name__ == "__main__":

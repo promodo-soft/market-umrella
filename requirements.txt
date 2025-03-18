@@ -1,6 +1,6 @@
 requests==2.31.0
 openpyxl==3.0.7
-python-telegram-bot==20.8
+python-telegram-bot==13.7
 google-auth==2.23.4
 google-auth-oauthlib==0.4.6
 google-auth-httplib2==0.1.0

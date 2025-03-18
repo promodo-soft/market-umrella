@@ -1,6 +1,5 @@
 import logging
-from telegram import Update
-from telegram.constants import ParseMode
+from telegram import Update, ParseMode
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from config import TELEGRAM_BOT_TOKEN
 from typing import Dict, Any

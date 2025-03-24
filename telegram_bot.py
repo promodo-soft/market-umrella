@@ -2,7 +2,7 @@ import logging
 from telegram import Update, ParseMode
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from config import TELEGRAM_BOT_TOKEN
-from typing import Dict, Any
+from typing import Dict, Any, List, Union
 import json
 import os
 
@@ -17,11 +17,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Файл для хранения chat_id
+# Файлы для хранения chat_id
 CHAT_ID_FILE = 'chat_id.json'
+CHATS_FILE = 'telegram_chats.json'
 
 # Глобальные переменные
 chat_id = None
+chat_ids = []
 updater_instance = None
 
 def get_updater():
@@ -33,14 +35,30 @@ def get_updater():
 
 def load_chat_id():
     """Загружает chat_id из файла."""
-    global chat_id
+    global chat_id, chat_ids
     try:
+        # Загружаем основной chat_id
         if os.path.exists(CHAT_ID_FILE):
             with open(CHAT_ID_FILE, 'r') as f:
                 data = json.load(f)
                 chat_id = data.get('chat_id')
                 if chat_id:
-                    logger.info(f"Загружен chat_id: {chat_id}")
+                    logger.info(f"Загружен основной chat_id: {chat_id}")
+                    
+        # Загружаем все чаты из файла
+        if os.path.exists(CHATS_FILE):
+            with open(CHATS_FILE, 'r') as f:
+                chats_data = json.load(f)
+                chat_ids = [int(cid) for cid in chats_data.keys()]
+                logger.info(f"Загружено {len(chat_ids)} дополнительных чатов")
+                
+        # Если основной chat_id есть, но его нет в списке всех чатов, добавляем
+        if chat_id and chat_id not in chat_ids:
+            chat_ids.append(chat_id)
+            
+        # Удаляем дубликаты
+        chat_ids = list(set(chat_ids))
+            
     except Exception as e:
         logger.error(f"Ошибка при загрузке chat_id: {str(e)}")
 
@@ -50,6 +68,21 @@ def save_chat_id():
         with open(CHAT_ID_FILE, 'w') as f:
             json.dump({'chat_id': chat_id}, f)
         logger.info(f"Сохранен chat_id: {chat_id}")
+        
+        # Добавляем новый chat_id в список всех чатов
+        if os.path.exists(CHATS_FILE):
+            with open(CHATS_FILE, 'r') as f:
+                chats_data = json.load(f)
+        else:
+            chats_data = {}
+            
+        # Добавляем новый чат с названием 'Новый чат'
+        chats_data[str(chat_id)] = "Новый чат"
+        
+        # Сохраняем обновленный список чатов
+        with open(CHATS_FILE, 'w') as f:
+            json.dump(chats_data, f, indent=2)
+            
     except Exception as e:
         logger.error(f"Ошибка при сохранении chat_id: {str(e)}")
 
@@ -67,6 +100,8 @@ def start(update: Update, context: CallbackContext) -> None:
     
     # Сохраняем chat_id
     save_chat_id()
+    # После сохранения перезагружаем список чатов
+    load_chat_id()
 
 def help_command(update: Update, context: CallbackContext) -> None:
     """Обработчик команды /help."""
@@ -79,7 +114,14 @@ def help_command(update: Update, context: CallbackContext) -> None:
 
 def status(update: Update, context: CallbackContext) -> None:
     """Обработчик команды /status."""
-    update.message.reply_text('Бот активний і готовий до роботи.')
+    load_chat_id()
+    
+    response = 'Бот активний і готовий до роботи.\n\n'
+    response += f'Основной чат ID: {chat_id}\n'
+    response += f'Всего чатов для отправки: {len(chat_ids)}\n'
+    response += f'ID чатов: {", ".join([str(cid) for cid in chat_ids])}'
+    
+    update.message.reply_text(response)
 
 def format_traffic_message(domain: str, traffic: int, previous_traffic: int = None) -> str:
     """
@@ -215,9 +257,59 @@ def notify_traffic_update(domains_data, mode='production'):
             except Exception as e:
                 logger.error("Повторная ошибка при отправке сообщения в Telegram: %s", str(e))
 
+def send_message_to_chats(message: str, parse_mode: str = None) -> bool:
+    """
+    Отправляет сообщение во все сохраненные чаты.
+    
+    Args:
+        message (str): Текст сообщения
+        parse_mode (str, optional): Режим форматирования текста
+        
+    Returns:
+        bool: True, если сообщение отправлено хотя бы в один чат, иначе False
+    """
+    logger.info("Отправка сообщения во все чаты")
+    
+    if not TELEGRAM_BOT_TOKEN:
+        logger.error("Токен Telegram бота не настроен")
+        return False
+    
+    # Загружаем ID чатов
+    load_chat_id()
+    
+    if not chat_ids:
+        logger.error("Нет сохраненных чатов для отправки")
+        return False
+    
+    logger.info(f"Найдено {len(chat_ids)} чатов для отправки")
+    
+    success = False
+    for cid in chat_ids:
+        try:
+            logger.info(f"Отправка сообщения в чат {cid}")
+            get_updater().bot.send_message(
+                chat_id=cid,
+                text=message,
+                parse_mode=parse_mode
+            )
+            success = True
+            logger.info(f"Сообщение успешно отправлено в чат {cid}")
+        except Exception as e:
+            logger.error(f"Ошибка при отправке сообщения в чат {cid}: {str(e)}")
+            try:
+                # Пробуем отправить без форматирования
+                get_updater().bot.send_message(chat_id=cid, text=message)
+                success = True
+                logger.info(f"Сообщение успешно отправлено без форматирования в чат {cid}")
+            except Exception as e2:
+                logger.error(f"Повторная ошибка при отправке сообщения в чат {cid}: {str(e2)}")
+    
+    return success
+
 def send_message(message: str, parse_mode: str = None) -> bool:
     """
     Отправляет сообщение в чат Telegram.
+    Совместимость со старым кодом + отправка во все чаты.
     
     Args:
         message (str): Текст сообщения
@@ -233,33 +325,9 @@ def send_message(message: str, parse_mode: str = None) -> bool:
         return False
     
     logger.info(f"Токен бота найден, длина: {len(TELEGRAM_BOT_TOKEN)}")
-        
-    try:
-        # Загружаем chat_id, если он не установлен
-        if chat_id is None:
-            logger.info("chat_id не установлен, пытаемся загрузить из файла")
-            load_chat_id()
-            
-        if chat_id is None:
-            logger.error("ID чата не определен. Сначала запустите бота с помощью команды /start")
-            return False
-            
-        logger.info(f"Используем chat_id: {chat_id}")
-        
-        logger.info("Отправляем сообщение через API Telegram")
-        get_updater().bot.send_message(
-            chat_id=chat_id,
-            text=message,
-            parse_mode=parse_mode
-        )
-        logger.info("Сообщение успешно отправлено")
-        return True
-    except Exception as e:
-        logger.error(f"Ошибка при отправке сообщения в Telegram: {str(e)}")
-        logger.error(f"Тип ошибки: {type(e)}")
-        import traceback
-        logger.error(f"Traceback: {traceback.format_exc()}")
-        return False
+    
+    # Отправляем сообщение во все чаты
+    return send_message_to_chats(message, parse_mode)
 
 def run_bot():
     """Запускает Telegram бота."""

@@ -195,9 +195,17 @@ def analyze_traffic_changes(domains_data):
 
 def run_test():
     """
-    Запускает тестовый режим с загрузкой и сохранением данных из Google Sheets
+    Основная функция, которая выполняет проверку и обновление данных
     """
     try:
+        # Проверяем наличие токена
+        if not os.getenv('AHREFS_API_TOKEN'):
+            logger.error("AHREFS_API_TOKEN не найден в переменных окружения")
+            if send_message("❌ Ошибка: AHREFS_API_TOKEN не найден в переменных окружения", test_mode=True):
+                logger.info("Сообщение об ошибке отправлено в Telegram")
+            return False
+        
+        # Загружаем данные из Google Sheets
         logger.info("Запуск тестового режима")
         
         # Настройка доступа к Google Sheets
@@ -363,23 +371,31 @@ def run_test():
                         'history': history
                     }
         
-        # Отправляем уведомление об изменениях
-        has_changes, message = analyze_traffic_changes(domains_data)
-        telegram_result = send_message(message)
-        logger.info(f"Результат отправки в Telegram: {'успешно' if telegram_result else 'ошибка'}")
+        # Отправляем сообщение в Telegram
+        message = f"✅ Данные о трафике успешно обновлены для {len(domains)} доменов."
+        if send_message(message, test_mode=True):
+            logger.info("Сообщение об успешном обновлении отправлено в Telegram")
+            
+        # Анализируем изменения трафика
+        has_changes, traffic_message = analyze_traffic_changes(domains_data)
+        if has_changes:
+            # Отправляем результаты анализа в Telegram
+            if send_message(traffic_message, parse_mode="HTML", test_mode=False):  # Важные уведомления отправляем во все чаты
+                logger.info("Сообщение об изменениях трафика отправлено в Telegram")
         
         return True
-            
+    
     except Exception as e:
         logger.error(f"Ошибка при выполнении теста: {str(e)}")
         import traceback
-        logger.error(f"Traceback: {traceback.format_exc()}")
+        error_details = traceback.format_exc()
+        logger.error(error_details)
         
-        # Отправляем уведомление об ошибке в Telegram
-        error_message = f"❌ Ошибка при обновлении данных:\n{str(e)}"
-        telegram_result = send_message(error_message)
-        logger.info(f"Результат отправки ошибки в Telegram: {'успешно' if telegram_result else 'ошибка'}")
-        
+        # Отправляем сообщение об ошибке в Telegram
+        message = f"❌ Ошибка: {str(e)}\n\n```\n{error_details[:1900]}```"
+        if send_message(message, parse_mode="Markdown", test_mode=True):
+            logger.info("Сообщение об ошибке отправлено в Telegram")
+            
         return False
 
 if __name__ == "__main__":

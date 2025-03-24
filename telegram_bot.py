@@ -21,6 +21,9 @@ logger = logging.getLogger(__name__)
 CHAT_ID_FILE = 'chat_id.json'
 CHATS_FILE = 'telegram_chats.json'
 
+# ID чатов, куда не следует отправлять тестовые сообщения
+PRODUCTION_CHAT_IDS = ["-1001930136015"]  # SEO & CSD - рабочий чат с большим количеством людей
+
 # Глобальные переменные
 chat_id = None
 chat_ids = []
@@ -288,13 +291,14 @@ def notify_traffic_update(domains_data, mode='production'):
             except Exception as e:
                 logger.error("Повторная ошибка при отправке сообщения в Telegram: %s", str(e))
 
-def send_message_to_chats(message: str, parse_mode: str = None) -> bool:
+def send_message_to_chats(message: str, parse_mode: str = None, test_mode: bool = False) -> bool:
     """
     Отправляет сообщение во все сохраненные чаты.
     
     Args:
         message (str): Текст сообщения
         parse_mode (str, optional): Режим форматирования текста
+        test_mode (bool): Если True, исключает отправку в рабочие чаты
         
     Returns:
         bool: True, если сообщение отправлено хотя бы в один чат, иначе False
@@ -312,10 +316,20 @@ def send_message_to_chats(message: str, parse_mode: str = None) -> bool:
         logger.error("Нет сохраненных чатов для отправки")
         return False
     
-    logger.info(f"Найдено {len(chat_ids)} чатов для отправки")
+    # Фильтруем чаты в зависимости от режима
+    target_chat_ids = []
+    for cid in chat_ids:
+        cid_str = str(cid)
+        # В тестовом режиме пропускаем рабочие чаты
+        if test_mode and cid_str in PRODUCTION_CHAT_IDS:
+            logger.info(f"Пропускаем рабочий чат {cid} в тестовом режиме")
+            continue
+        target_chat_ids.append(cid)
+    
+    logger.info(f"Найдено {len(target_chat_ids)} из {len(chat_ids)} чатов для отправки")
     
     success = False
-    for cid in chat_ids:
+    for cid in target_chat_ids:
         try:
             logger.info(f"Отправка сообщения в чат {cid}")
             get_updater().bot.send_message(
@@ -337,7 +351,7 @@ def send_message_to_chats(message: str, parse_mode: str = None) -> bool:
     
     return success
 
-def send_message(message: str, parse_mode: str = None) -> bool:
+def send_message(message: str, parse_mode: str = None, test_mode: bool = False) -> bool:
     """
     Отправляет сообщение в чат Telegram.
     Совместимость со старым кодом + отправка во все чаты.
@@ -345,6 +359,7 @@ def send_message(message: str, parse_mode: str = None) -> bool:
     Args:
         message (str): Текст сообщения
         parse_mode (str, optional): Режим форматирования текста
+        test_mode (bool): Если True, исключает отправку в рабочие чаты
         
     Returns:
         bool: True, если сообщение отправлено успешно, иначе False
@@ -358,7 +373,7 @@ def send_message(message: str, parse_mode: str = None) -> bool:
     logger.info(f"Токен бота найден, длина: {len(TELEGRAM_BOT_TOKEN)}")
     
     # Отправляем сообщение во все чаты
-    return send_message_to_chats(message, parse_mode)
+    return send_message_to_chats(message, parse_mode, test_mode)
 
 def run_bot():
     """Запускает Telegram бота."""

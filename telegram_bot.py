@@ -49,8 +49,18 @@ def load_chat_id():
         if os.path.exists(CHATS_FILE):
             with open(CHATS_FILE, 'r') as f:
                 chats_data = json.load(f)
-                chat_ids = [int(cid) for cid in chats_data.keys()]
-                logger.info(f"Загружено {len(chat_ids)} дополнительных чатов")
+                chat_ids = []
+                
+                for cid_str, name in chats_data.items():
+                    try:
+                        # Корректно обрабатываем отрицательные ID групп
+                        cid = int(cid_str)
+                        chat_ids.append(cid)
+                        logger.info(f"Загружен chat_id: {cid} ({name})")
+                    except ValueError:
+                        logger.error(f"Некорректный chat_id в файле: {cid_str}")
+                
+                logger.info(f"Загружено {len(chat_ids)} чатов")
                 
         # Если основной chat_id есть, но его нет в списке всех чатов, добавляем
         if chat_id and chat_id not in chat_ids:
@@ -58,9 +68,13 @@ def load_chat_id():
             
         # Удаляем дубликаты
         chat_ids = list(set(chat_ids))
+        
+        logger.info(f"Всего уникальных чатов: {len(chat_ids)}")
             
     except Exception as e:
         logger.error(f"Ошибка при загрузке chat_id: {str(e)}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
 
 def save_chat_id():
     """Сохраняет chat_id в файл."""
@@ -90,18 +104,35 @@ def start(update: Update, context: CallbackContext) -> None:
     """Обработчик команды /start."""
     global chat_id
     chat_id = update.effective_chat.id
+    chat_type = update.effective_chat.type
     
     user = update.effective_user
-    update.message.reply_text(
-        f'Привіт, {user.first_name}! Я бот для моніторингу органічного трафіку сайтів через Ahrefs API. '
-        f'Я буду відправляти повідомлення про оновлення даних та зниження трафіку в цей чат.'
-    )
-    logger.info(f"Бот запущен пользователем {user.first_name} (ID: {user.id}). Chat ID: {chat_id}")
+    
+    # Разные приветствия для личных чатов и групп
+    if chat_type == 'private':
+        greeting = f'Привіт, {user.first_name}! Я бот для моніторингу органічного трафіку сайтів через Ahrefs API. '
+        greeting += f'Я буду відправляти повідомлення про оновлення даних та зниження трафіку в цей чат.'
+    else:
+        chat_name = update.effective_chat.title
+        greeting = f'Привіт! Я бот для моніторингу органічного трафіку сайтів через Ahrefs API. '
+        greeting += f'Я буду відправляти повідомлення про оновлення даних та зниження трафіку в цей чат "{chat_name}".'
+    
+    update.message.reply_text(greeting)
+    
+    logger.info(f"Бот запущен в чате {chat_id} (тип: {chat_type}). Пользователь: {user.first_name} (ID: {user.id})")
     
     # Сохраняем chat_id
     save_chat_id()
     # После сохранения перезагружаем список чатов
     load_chat_id()
+    
+    # Отправляем тестовое сообщение для проверки
+    try:
+        test_message = "✅ Бот успешно активирован в этом чате. Теперь вы будете получать уведомления об изменениях трафика."
+        get_updater().bot.send_message(chat_id=chat_id, text=test_message)
+        logger.info(f"Тестовое сообщение успешно отправлено в чат {chat_id}")
+    except Exception as e:
+        logger.error(f"Ошибка при отправке тестового сообщения в чат {chat_id}: {str(e)}")
 
 def help_command(update: Update, context: CallbackContext) -> None:
     """Обработчик команды /help."""
@@ -343,18 +374,23 @@ def run_bot():
         dispatcher = updater.dispatcher
         
         # Регистрация обработчиков команд
-        dispatcher.add_handler(CommandHandler("start", start))
-        dispatcher.add_handler(CommandHandler("help", help_command))
-        dispatcher.add_handler(CommandHandler("status", status))
+        # Регистрируем обработчики команд с фильтрами для работы и в личных чатах, и в группах
+        dispatcher.add_handler(CommandHandler("start", start, filters=Filters.chat_type.private | Filters.chat_type.groups))
+        dispatcher.add_handler(CommandHandler("help", help_command, filters=Filters.chat_type.private | Filters.chat_type.groups))
+        dispatcher.add_handler(CommandHandler("status", status, filters=Filters.chat_type.private | Filters.chat_type.groups))
+        
+        # Логируем начало работы
+        logger.info("Telegram бот запущен и готов обрабатывать команды в личных и групповых чатах")
         
         # Запуск бота
         updater.start_polling()
-        logger.info("Telegram бот запущен")
         
         # Запуск бота до нажатия Ctrl+C
         updater.idle()
     except Exception as e:
         logger.error(f"Ошибка при запуске Telegram бота: {str(e)}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
 
 if __name__ == "__main__":
     run_bot() 

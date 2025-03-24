@@ -23,69 +23,69 @@ def test_send_to_group():
         
         # Проверяем наличие файла с чатами
         if not os.path.exists('telegram_chats.json'):
-            logger.error("Файл telegram_chats.json не найден")
+            logger.error("Файл telegram_chats.json не знайдений")
             return False
         
         # Загружаем чаты из файла
         with open('telegram_chats.json', 'r') as f:
             chats = json.load(f)
         
-        logger.info(f"Загружено {len(chats)} чатов из файла")
+        logger.info(f"Завантажено {len(chats)} чатів з файлу")
         
         # Находим групповые чаты (ID начинается с минуса)
         group_chats = {cid: name for cid, name in chats.items() if cid.startswith('-') and cid not in EXCLUDED_CHAT_IDS}
         
         # Выводим информацию о всех чатах, включая исключенные
         all_group_chats = {cid: name for cid, name in chats.items() if cid.startswith('-')}
-        logger.info(f"Найдено {len(all_group_chats)} групповых чатов: {all_group_chats}")
-        logger.info(f"Исключено из тестирования: {[chats.get(cid, cid) for cid in EXCLUDED_CHAT_IDS]}")
-        logger.info(f"Для тестирования выбрано {len(group_chats)} чатов: {group_chats}")
+        logger.info(f"Знайдено {len(all_group_chats)} групових чатів: {all_group_chats}")
+        logger.info(f"Виключено з тестування: {[chats.get(cid, cid) for cid in EXCLUDED_CHAT_IDS]}")
+        logger.info(f"Для тестування обрано {len(group_chats)} чатів: {group_chats}")
         
         if not all_group_chats:
-            logger.error("Групповые чаты не найдены")
+            logger.error("Групові чати не знайдені")
             return False
             
         if not group_chats:
-            logger.info("Все найденные групповые чаты исключены из тестирования")
-            logger.info("Проверка доступности чатов без отправки сообщений:")
+            logger.info("Всі знайдені групові чати виключені з тестування")
+            logger.info("Перевірка доступності чатів без відправки повідомлень:")
             
             # Проверяем доступ к чатам без отправки сообщений
             for chat_id, chat_name in all_group_chats.items():
                 try:
-                    logger.info(f"Получение информации о чате {chat_name} (ID: {chat_id})")
+                    logger.info(f"Отримання інформації про чат {chat_name} (ID: {chat_id})")
                     chat_info = get_updater().bot.get_chat(chat_id=int(chat_id))
-                    logger.info(f"Чат доступен: {chat_info.title} ({chat_info.type})")
+                    logger.info(f"Чат доступний: {chat_info.title} ({chat_info.type})")
                 except Exception as e:
-                    logger.error(f"Ошибка при проверке чата {chat_name} (ID: {chat_id}): {str(e)}")
+                    logger.error(f"Помилка при перевірці чату {chat_name} (ID: {chat_id}): {str(e)}")
             
             return True
         
         # Отправляем тестовое сообщение только в не исключенные чаты
         for chat_id, chat_name in group_chats.items():
             try:
-                message = f"📊 Тестовое сообщение в групповой чат '{chat_name}' (ID: {chat_id}).\n\n"
-                message += "Если вы видите это сообщение, значит бот настроен правильно и может отправлять уведомления в этот чат."
+                message = f"📊 Тестове повідомлення в груповий чат '{chat_name}' (ID: {chat_id}).\n\n"
+                message += "Якщо ви бачите це повідомлення, значить бот налаштований правильно і може відправляти сповіщення в цей чат."
                 
-                logger.info(f"Отправка тестового сообщения в чат {chat_name} (ID: {chat_id})")
+                logger.info(f"Відправка тестового повідомлення в чат {chat_name} (ID: {chat_id})")
                 get_updater().bot.send_message(chat_id=int(chat_id), text=message)
-                logger.info(f"Сообщение успешно отправлено в чат {chat_name}")
+                logger.info(f"Повідомлення успішно відправлено в чат {chat_name}")
             except Exception as e:
-                logger.error(f"Ошибка при отправке в чат {chat_name} (ID: {chat_id}): {str(e)}")
+                logger.error(f"Помилка при відправці в чат {chat_name} (ID: {chat_id}): {str(e)}")
                 import traceback
                 logger.error(f"Traceback: {traceback.format_exc()}")
         
         return True
     
     except Exception as e:
-        logger.error(f"Ошибка при тестировании отправки в группу: {str(e)}")
+        logger.error(f"Помилка при тестуванні відправки в групу: {str(e)}")
         import traceback
         logger.error(f"Traceback: {traceback.format_exc()}")
         return False
 
 if __name__ == "__main__":
-    logger.info("Начинаем тест отправки сообщений в групповые чаты")
+    logger.info("Починаємо тест відправки повідомлень в групові чати")
     result = test_send_to_group()
     if result:
-        logger.info("Тест завершен успешно")
+        logger.info("Тест завершено успішно")
     else:
-        logger.error("Тест завершен с ошибками") 
+        logger.error("Тест завершено з помилками") 

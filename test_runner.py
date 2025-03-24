@@ -18,12 +18,12 @@ logger = logging.getLogger(__name__)
 # Проверка наличия токенов
 telegram_token = os.getenv('TELEGRAM_BOT_TOKEN')
 ahrefs_token = os.getenv('AHREFS_API_KEY')
-logger.info(f"Telegram token {'найден' if telegram_token else 'не найден'} в переменных окружения")
-logger.info(f"Ahrefs token {'найден' if ahrefs_token else 'не найден'} в переменных окружения")
+logger.info(f"Telegram token {'знайдений' if telegram_token else 'не знайдений'} в змінних середовища")
+logger.info(f"Ahrefs token {'знайдений' if ahrefs_token else 'не знайдений'} в змінних середовища")
 
 # Проверка доступности API Ahrefs
 if not check_api_availability():
-    error_message = "❌ API Ahrefs недоступно или неверный ключ API. Проверьте настройки."
+    error_message = "❌ API Ahrefs недоступне або невірний ключ API. Перевірте налаштування."
     logger.error(error_message)
     send_message(error_message)
     raise ValueError(error_message)
@@ -95,9 +95,9 @@ def init_sheet(service, sheet_id):
         
         # Отправляем уведомление в Telegram
         logger.info("Отправляем уведомление в Telegram об инициализации")
-        message = f"✅ Таблица успешно инициализирована\nДобавлено доменов: {len(values)}"
+        message = f"✅ Таблиця успішно ініціалізована\nДодано доменів: {len(values)}"
         telegram_result = send_message(message)
-        logger.info(f"Результат отправки в Telegram: {'успешно' if telegram_result else 'ошибка'}")
+        logger.info(f"Результат відправки в Telegram: {'успішно' if telegram_result else 'помилка'}")
         
         return True
     except Exception as e:
@@ -106,10 +106,10 @@ def init_sheet(service, sheet_id):
         logger.error(f"Traceback: {traceback.format_exc()}")
         
         # Отправляем уведомление об ошибке в Telegram
-        logger.info("Отправляем уведомление об ошибке в Telegram")
-        error_message = f"❌ Ошибка при инициализации таблицы:\n{str(e)}"
+        logger.info("Отправляем уведомлення про помилку в Telegram")
+        error_message = f"❌ Помилка при ініціалізації таблиці:\n{str(e)}"
         telegram_result = send_message(error_message)
-        logger.info(f"Результат отправки ошибки в Telegram: {'успешно' if telegram_result else 'ошибка'}")
+        logger.info(f"Результат відправки помилки в Telegram: {'успішно' if telegram_result else 'помилка'}")
         
         return False
 
@@ -126,7 +126,7 @@ def analyze_traffic_changes(domains_data):
     critical_changes = []
     consecutive_drops = []
     
-    logger.info(f"Анализируем изменения трафика для {len(domains_data)} доменов")
+    logger.info(f"Аналізуємо зміни трафіку для {len(domains_data)} доменів")
     
     for domain, data in domains_data.items():
         history = data.get('history', [])
@@ -136,11 +136,11 @@ def analyze_traffic_changes(domains_data):
             
             # Логируем все изменения трафика для диагностики
             change_percent = ((current_traffic - previous_traffic) / previous_traffic) * 100 if previous_traffic > 0 else 0
-            logger.info(f"Домен {domain}: текущий трафик {current_traffic}, предыдущий {previous_traffic}, изменение {change_percent:.1f}%")
+            logger.info(f"Домен {domain}: поточний трафік {current_traffic}, попередній {previous_traffic}, зміна {change_percent:.1f}%")
             
             # Пропускаем домены с трафиком меньше 1000
             if current_traffic < 1000 or previous_traffic < 1000:
-                logger.info(f"Пропускаем домен {domain} из-за недостаточного трафика")
+                logger.info(f"Пропускаємо домен {domain} через недостатній трафік")
                 continue
             
             # Вычисляем изменение в процентах
@@ -148,7 +148,7 @@ def analyze_traffic_changes(domains_data):
             
             # Проверяем условия падения трафика
             if change <= -11:  # Резкое падение более 11%
-                logger.info(f"Обнаружено резкое падение для {domain}: {change:.1f}%")
+                logger.info(f"Виявлено різке падіння для {domain}: {change:.1f}%")
                 critical_changes.append({
                     'domain': domain,
                     'traffic': current_traffic,
@@ -160,7 +160,7 @@ def analyze_traffic_changes(domains_data):
                 if traffic_before_previous >= 1000:
                     previous_change = ((previous_traffic - traffic_before_previous) / traffic_before_previous) * 100
                     if previous_change <= -5 and change <= -5:  # Два последовательных падения по 5%
-                        logger.info(f"Обнаружено последовательное падение для {domain}: текущее {change:.1f}%, предыдущее {previous_change:.1f}%")
+                        logger.info(f"Виявлено послідовне падіння для {domain}: поточне {change:.1f}%, попереднє {previous_change:.1f}%")
                         consecutive_drops.append({
                             'domain': domain,
                             'traffic': current_traffic,
@@ -169,27 +169,27 @@ def analyze_traffic_changes(domains_data):
                         })
     
     # Логирование результатов
-    logger.info(f"Обнаружено резких падений: {len(critical_changes)}")
-    logger.info(f"Обнаружено последовательных падений: {len(consecutive_drops)}")
+    logger.info(f"Виявлено різких падінь: {len(critical_changes)}")
+    logger.info(f"Виявлено послідовних падінь: {len(consecutive_drops)}")
     
     # Формируем сообщение
     if not critical_changes and not consecutive_drops:
-        return False, "✅ Критических изменений трафика не обнаружено"
+        return False, "✅ Критичних змін трафіку не виявлено"
     
-    message = "⚠️ Обнаружено падение трафика:\n\n"
+    message = "⚠️ Виявлено падіння трафіку:\n\n"
     
     # Сначала выводим резкие падения
     if critical_changes:
-        message += "📉 Резкое падение:\n"
+        message += "📉 Різке падіння:\n"
         for change in sorted(critical_changes, key=lambda x: x['change']):
-            message += f"{change['domain']}: {change['traffic']:,} (падение {abs(change['change']):.1f}%)\n"
+            message += f"{change['domain']}: {change['traffic']:,} (падіння {abs(change['change']):.1f}%)\n"
         message += "\n"
     
     # Затем выводим последовательные падения
     if consecutive_drops:
-        message += "📉 Последовательное падение:\n"
+        message += "📉 Послідовне падіння:\n"
         for drop in sorted(consecutive_drops, key=lambda x: x['change']):
-            message += f"{drop['domain']}: {drop['traffic']:,} (падение {abs(drop['change']):.1f}%, пред. {abs(drop['prev_change']):.1f}%)\n"
+            message += f"{drop['domain']}: {drop['traffic']:,} (падіння {abs(drop['change']):.1f}%, попер. {abs(drop['prev_change']):.1f}%)\n"
     
     return True, message
 
@@ -200,9 +200,9 @@ def run_test():
     try:
         # Проверяем наличие токена
         if not os.getenv('AHREFS_API_TOKEN'):
-            logger.error("AHREFS_API_TOKEN не найден в переменных окружения")
-            if send_message("❌ Ошибка: AHREFS_API_TOKEN не найден в переменных окружения", test_mode=True):
-                logger.info("Сообщение об ошибке отправлено в Telegram")
+            logger.error("AHREFS_API_TOKEN не знайдений в змінних середовища")
+            if send_message("❌ Помилка: AHREFS_API_TOKEN не знайдений в змінних середовища", test_mode=True):
+                logger.info("Повідомлення про помилку відправлено в Telegram")
             return False
         
         # Загружаем данные из Google Sheets
@@ -265,15 +265,15 @@ def run_test():
         try:
             with open('domains.txt', 'r', encoding='utf-8') as f:
                 domains = [line.strip() for line in f if line.strip()]
-            logger.info(f"Загружено {len(domains)} доменов из файла")
+            logger.info(f"Загружено {len(domains)} доменів з файла")
         except Exception as e:
-            logger.error(f"Ошибка при чтении файла domains.txt: {str(e)}")
+            logger.error(f"Помилка при читанні файла domains.txt: {str(e)}")
             raise
 
         # Проверяем, есть ли уже данные за сегодня
         headers = values[0] if values else []
         if len(headers) > 1 and headers[1] == current_date:
-            logger.info(f"Данные уже обновлены сегодня ({current_date}). Проверяем изменения трафика.")
+            logger.info(f"Дані вже оновлені сьогодні ({current_date}). Перевіряємо зміни трафіку.")
             
             # Анализируем изменения трафика
             domains_data = {}
@@ -303,12 +303,12 @@ def run_test():
             # Анализируем изменения и отправляем уведомление
             has_changes, message = analyze_traffic_changes(domains_data)
             telegram_result = send_message(message)
-            logger.info(f"Результат отправки в Telegram: {'успешно' if telegram_result else 'ошибка'}")
+            logger.info(f"Результат відправки в Telegram: {'успішно' if telegram_result else 'помилка'}")
             
             return True
         
         # Если данных за сегодня нет, добавляем новый столбец
-        logger.info(f"Добавляем данные за {current_date}")
+        logger.info(f"Додаємо дані за {current_date}")
         
         # Создаем словарь с текущими данными по доменам
         existing_domains = {row[0]: row[1:] for row in values[1:]} if len(values) > 1 else {}
@@ -319,9 +319,9 @@ def run_test():
         # Обрабатываем каждый домен
         for domain in domains:
             # Получаем текущий трафик из Ahrefs
-            logger.info(f"Запрашиваем данные для домена: {domain}")
+            logger.info(f"Запрашиваем дані для домена: {domain}")
             current_traffic = get_organic_traffic(domain)
-            logger.info(f"Домен {domain}: трафик = {current_traffic}")
+            logger.info(f"Домен {domain}: трафік = {current_traffic}")
             
             domain_row = [domain, str(current_traffic)]
             
@@ -331,7 +331,7 @@ def run_test():
             
             new_values.append(domain_row)
         
-        # Очищаем весь лист и записываем новые данные
+        # Очищаем весь лист і записываем новые данные
         sheet.values().clear(
             spreadsheetId=sheet_id,
             range='Traffic!A1:ZZ'
@@ -344,7 +344,7 @@ def run_test():
             body={'values': new_values}
         ).execute()
         
-        logger.info(f"Данные успешно сохранены в Google Sheets: {result.get('updatedCells')} ячеек обновлено")
+        logger.info(f"Дані успішно збережені в Google Sheets: {result.get('updatedCells')} ячеек оновлено")
         
         # Анализируем изменения трафика
         domains_data = {}
@@ -372,34 +372,34 @@ def run_test():
                     }
         
         # Отправляем сообщение в Telegram
-        message = f"✅ Данные о трафике успешно обновлены для {len(domains)} доменов."
+        message = f"✅ Дані про трафік успішно оновлено для {len(domains)} доменів."
         if send_message(message, test_mode=True):
-            logger.info("Сообщение об успешном обновлении отправлено в Telegram")
+            logger.info("Повідомлення про успішне оновлення відправлено в Telegram")
             
         # Анализируем изменения трафика
         has_changes, traffic_message = analyze_traffic_changes(domains_data)
         if has_changes:
             # Отправляем результаты анализа в Telegram
             if send_message(traffic_message, parse_mode="HTML", test_mode=False):  # Важные уведомления отправляем во все чаты
-                logger.info("Сообщение об изменениях трафика отправлено в Telegram")
+                logger.info("Повідомлення про зміни трафіку відправлено в Telegram")
         
         return True
     
     except Exception as e:
-        logger.error(f"Ошибка при выполнении теста: {str(e)}")
+        logger.error(f"Помилка при виконанні тесту: {str(e)}")
         import traceback
         error_details = traceback.format_exc()
         logger.error(error_details)
         
         # Отправляем сообщение об ошибке в Telegram
-        message = f"❌ Ошибка: {str(e)}\n\n```\n{error_details[:1900]}```"
+        message = f"❌ Помилка: {str(e)}\n\n```\n{error_details[:1900]}```"
         if send_message(message, parse_mode="Markdown", test_mode=True):
-            logger.info("Сообщение об ошибке отправлено в Telegram")
+            logger.info("Повідомлення про помилку відправлено в Telegram")
             
         return False
 
 if __name__ == "__main__":
     success = run_test()
     if not success:
-        logger.error("Тест завершился с ошибкой")
+        logger.error("Тест завершився з помилкою")
         exit(1) 

@@ -46,7 +46,7 @@ def load_chat_id():
                 data = json.load(f)
                 chat_id = data.get('chat_id')
                 if chat_id:
-                    logger.info(f"Загружен основной chat_id: {chat_id}")
+                    logger.info(f"Загружен основний chat_id: {chat_id}")
                     
         # Загружаем все чаты из файла
         if os.path.exists(CHATS_FILE):
@@ -61,9 +61,9 @@ def load_chat_id():
                         chat_ids.append(cid)
                         logger.info(f"Загружен chat_id: {cid} ({name})")
                     except ValueError:
-                        logger.error(f"Некорректный chat_id в файле: {cid_str}")
+                        logger.error(f"Некорректний chat_id в файлі: {cid_str}")
                 
-                logger.info(f"Загружено {len(chat_ids)} чатов")
+                logger.info(f"Загружено {len(chat_ids)} чатів")
                 
         # Если основной chat_id есть, но его нет в списке всех чатов, добавляем
         if chat_id and chat_id not in chat_ids:
@@ -72,10 +72,10 @@ def load_chat_id():
         # Удаляем дубликаты
         chat_ids = list(set(chat_ids))
         
-        logger.info(f"Всего уникальных чатов: {len(chat_ids)}")
+        logger.info(f"Всього унікальних чатів: {len(chat_ids)}")
             
     except Exception as e:
-        logger.error(f"Ошибка при загрузке chat_id: {str(e)}")
+        logger.error(f"Ошибка при загрузці chat_id: {str(e)}")
         import traceback
         logger.error(f"Traceback: {traceback.format_exc()}")
 
@@ -93,8 +93,8 @@ def save_chat_id():
         else:
             chats_data = {}
             
-        # Добавляем новый чат с названием 'Новый чат'
-        chats_data[str(chat_id)] = "Новый чат"
+        # Добавляем новый чат з названням 'Новий чат'
+        chats_data[str(chat_id)] = "Новий чат"
         
         # Сохраняем обновленный список чатов
         with open(CHATS_FILE, 'w') as f:
@@ -122,7 +122,7 @@ def start(update: Update, context: CallbackContext) -> None:
     
     update.message.reply_text(greeting)
     
-    logger.info(f"Бот запущен в чате {chat_id} (тип: {chat_type}). Пользователь: {user.first_name} (ID: {user.id})")
+    logger.info(f"Бот запущен в чаті {chat_id} (тип: {chat_type}). Пользователь: {user.first_name} (ID: {user.id})")
     
     # Сохраняем chat_id
     save_chat_id()
@@ -131,7 +131,7 @@ def start(update: Update, context: CallbackContext) -> None:
     
     # Отправляем тестовое сообщение для проверки
     try:
-        test_message = "✅ Бот успешно активирован в этом чате. Теперь вы будете получать уведомления об изменениях трафика."
+        test_message = "✅ Бот успішно активовано в цьому чаті. Тепер ви будете отримувати сповіщення про зміни трафіку."
         get_updater().bot.send_message(chat_id=chat_id, text=test_message)
         logger.info(f"Тестовое сообщение успешно отправлено в чат {chat_id}")
     except Exception as e:
@@ -151,9 +151,9 @@ def status(update: Update, context: CallbackContext) -> None:
     load_chat_id()
     
     response = 'Бот активний і готовий до роботи.\n\n'
-    response += f'Основной чат ID: {chat_id}\n'
-    response += f'Всего чатов для отправки: {len(chat_ids)}\n'
-    response += f'ID чатов: {", ".join([str(cid) for cid in chat_ids])}'
+    response += f'Основний чат ID: {chat_id}\n'
+    response += f'Всього чатів для відправки: {len(chat_ids)}\n'
+    response += f'ID чатів: {", ".join([str(cid) for cid in chat_ids])}'
     
     update.message.reply_text(response)
 
@@ -170,12 +170,12 @@ def format_traffic_message(domain: str, traffic: int, previous_traffic: int = No
         str: Отформатированное сообщение
     """
     message = f"🌐 *{domain}*\n"
-    message += f"📊 Трафик: {traffic:,}\n"
+    message += f"📊 Трафік: {traffic:,}\n"
     
     if previous_traffic is not None and previous_traffic > 0:
         change = ((traffic - previous_traffic) / previous_traffic) * 100
         emoji = "📈" if change >= 0 else "📉"
-        message += f"{emoji} Изменение: {change:+.1f}%\n"
+        message += f"{emoji} Зміна: {change:+.1f}%\n"
         
     return message
 
@@ -194,7 +194,7 @@ def notify_traffic_update(domains_data, mode='production'):
     """
     logger.info("Загружен chat_id: %s", chat_id)
     
-    # Формируем список доменов для уведомления
+    # Формируем список доменів для уведомлення
     domains_to_notify = []
     for domain, data in domains_data.items():
         history = data.get('history', [])
@@ -208,7 +208,7 @@ def notify_traffic_update(domains_data, mode='production'):
             
             # Проверяем, что значения трафика корректные (больше 1000)
             if traffic_current < 1000 or traffic_previous < 1000:
-                logger.info(f"Пропускаем домен {domain} из-за некорректных значений трафика: текущий={traffic_current}, предыдущий={traffic_previous}")
+                logger.info(f"Пропускаем домен {domain} з-за некоректних значень трафика: текучий={traffic_current}, попередній={traffic_previous}")
                 continue
             
             # Вычисляем изменение для последнего съема
@@ -244,7 +244,7 @@ def notify_traffic_update(domains_data, mode='production'):
     
     if not domains_to_notify:
         if mode == 'test':
-            message = "🔄 Обновление данных о трафике\n\nНет доменов с критическим падением трафика (или значения трафика некорректны)."
+            message = "🔄 Оновлення даних про трафік\n\nНемає доменів з критичним падінням трафіку (або значення трафіку некоректні)."
             try:
                 get_updater().bot.send_message(chat_id=chat_id, text=message)
             except Exception as e:
@@ -261,9 +261,9 @@ def notify_traffic_update(domains_data, mode='production'):
     # Отправляем сообщения по частям
     for i, chunk in enumerate(domain_chunks):
         if mode == 'test':
-            message = "🔄 Обновление данных о трафике\n\n" if i == 0 else "🔄 Продолжение обновления данных о трафике\n\n"
+            message = "🔄 Оновлення даних про трафік\n\n" if i == 0 else "🔄 Продовження оновлення даних про трафік\n\n"
         else:
-            message = "⚠️ Обнаружено критическое падение трафика\n\n" if i == 0 else "⚠️ Продолжение отчета о падении трафика\n\n"
+            message = "⚠️ Виявлено критичне падіння трафіку\n\n" if i == 0 else "⚠️ Продовження звіту про падіння трафіку\n\n"
         
         for domain_data in chunk:
             domain = domain_data['domain']
@@ -273,9 +273,9 @@ def notify_traffic_update(domains_data, mode='production'):
             
             # Формируем сообщение в зависимости от типа падения
             if change <= -11:
-                message += f"{domain}: {traffic:,} (📉 {change:.1f}% - резкое падение)\n"
+                message += f"{domain}: {traffic:,} (📉 {change:.1f}% - різке падіння)\n"
             else:
-                message += f"{domain}: {traffic:,} (📉 {change:.1f}%, пред. {prev_change:.1f}%)\n"
+                message += f"{domain}: {traffic:,} (📉 {change:.1f}%, попер. {prev_change:.1f}%)\n"
         
         try:
             get_updater().bot.send_message(
@@ -303,17 +303,17 @@ def send_message_to_chats(message: str, parse_mode: str = None, test_mode: bool 
     Returns:
         bool: True, если сообщение отправлено хотя бы в один чат, иначе False
     """
-    logger.info("Отправка сообщения во все чаты")
+    logger.info("Відправка повідомлення у всі чати")
     
     if not TELEGRAM_BOT_TOKEN:
-        logger.error("Токен Telegram бота не настроен")
+        logger.error("Токен Telegram бота не налаштований")
         return False
     
     # Загружаем ID чатов
     load_chat_id()
     
     if not chat_ids:
-        logger.error("Нет сохраненных чатов для отправки")
+        logger.error("Немає збережених чатів для відправки")
         return False
     
     # Фильтруем чаты в зависимости от режима
@@ -322,32 +322,32 @@ def send_message_to_chats(message: str, parse_mode: str = None, test_mode: bool 
         cid_str = str(cid)
         # В тестовом режиме пропускаем рабочие чаты
         if test_mode and cid_str in PRODUCTION_CHAT_IDS:
-            logger.info(f"Пропускаем рабочий чат {cid} в тестовом режиме")
+            logger.info(f"Пропускаємо робочий чат {cid} в тестовому режимі")
             continue
         target_chat_ids.append(cid)
     
-    logger.info(f"Найдено {len(target_chat_ids)} из {len(chat_ids)} чатов для отправки")
+    logger.info(f"Знайдено {len(target_chat_ids)} з {len(chat_ids)} чатів для відправки")
     
     success = False
     for cid in target_chat_ids:
         try:
-            logger.info(f"Отправка сообщения в чат {cid}")
+            logger.info(f"Відправка повідомлення в чат {cid}")
             get_updater().bot.send_message(
                 chat_id=cid,
                 text=message,
                 parse_mode=parse_mode
             )
             success = True
-            logger.info(f"Сообщение успешно отправлено в чат {cid}")
+            logger.info(f"Повідомлення успішно відправлено в чат {cid}")
         except Exception as e:
-            logger.error(f"Ошибка при отправке сообщения в чат {cid}: {str(e)}")
+            logger.error(f"Помилка при відправці повідомлення в чат {cid}: {str(e)}")
             try:
                 # Пробуем отправить без форматирования
                 get_updater().bot.send_message(chat_id=cid, text=message)
                 success = True
-                logger.info(f"Сообщение успешно отправлено без форматирования в чат {cid}")
+                logger.info(f"Повідомлення успішно відправлено без форматування в чат {cid}")
             except Exception as e2:
-                logger.error(f"Повторная ошибка при отправке сообщения в чат {cid}: {str(e2)}")
+                logger.error(f"Повторна помилка при відправці повідомлення в чат {cid}: {str(e2)}")
     
     return success
 
@@ -364,13 +364,13 @@ def send_message(message: str, parse_mode: str = None, test_mode: bool = False) 
     Returns:
         bool: True, если сообщение отправлено успешно, иначе False
     """
-    logger.info("Начинаем отправку сообщения в Telegram")
+    logger.info("Починаємо відправку повідомлення в Telegram")
     
     if not TELEGRAM_BOT_TOKEN:
-        logger.error("Токен Telegram бота не настроен")
+        logger.error("Токен Telegram бота не налаштований")
         return False
     
-    logger.info(f"Токен бота найден, длина: {len(TELEGRAM_BOT_TOKEN)}")
+    logger.info(f"Токен бота знайдений, довжина: {len(TELEGRAM_BOT_TOKEN)}")
     
     # Отправляем сообщение во все чаты
     return send_message_to_chats(message, parse_mode, test_mode)
@@ -378,7 +378,7 @@ def send_message(message: str, parse_mode: str = None, test_mode: bool = False) 
 def run_bot():
     """Запускает Telegram бота."""
     if not TELEGRAM_BOT_TOKEN:
-        logger.error("Токен Telegram бота не настроен")
+        logger.error("Токен Telegram бота не налаштований")
         return
         
     try:
@@ -395,7 +395,7 @@ def run_bot():
         dispatcher.add_handler(CommandHandler("status", status, filters=Filters.chat_type.private | Filters.chat_type.groups))
         
         # Логируем начало работы
-        logger.info("Telegram бот запущен и готов обрабатывать команды в личных и групповых чатах")
+        logger.info("Telegram бот запущен і готов обробляти команди в особистих і групових чатах")
         
         # Запуск бота
         updater.start_polling()
@@ -403,7 +403,7 @@ def run_bot():
         # Запуск бота до нажатия Ctrl+C
         updater.idle()
     except Exception as e:
-        logger.error(f"Ошибка при запуске Telegram бота: {str(e)}")
+        logger.error(f"Помилка при запуску Telegram бота: {str(e)}")
         import traceback
         logger.error(f"Traceback: {traceback.format_exc()}")
 

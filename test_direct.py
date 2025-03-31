@@ -70,19 +70,19 @@ try:
 except ImportError as e:
     logger.error(f"Помилка імпорту ahrefs_api.py: {e}")
 
-# Перевіримо, чи є інші файли, що містять AHREFS_API_TOKEN
-logger.info("=== Пошук AHREFS_API_TOKEN у файлах ===")
+# Перевіримо, чи є інші файли, що містять AHREFS_API_KEY
+logger.info("=== Пошук AHREFS_API_KEY у файлах ===")
 py_files = [f for f in os.listdir('.') if f.endswith('.py')]
 for file_name in py_files:
     try:
         with open(file_name, 'r', encoding='utf-8') as f:
             content = f.read()
-            if 'AHREFS_API_TOKEN' in content:
-                logger.warning(f"Файл {file_name} містить AHREFS_API_TOKEN")
+            if 'AHREFS_API_KEY' in content:
+                logger.warning(f"Файл {file_name} містить AHREFS_API_KEY")
                 # Спробуємо знайти рядки з цією змінною
                 lines = content.split('\n')
                 for i, line in enumerate(lines):
-                    if 'AHREFS_API_TOKEN' in line:
+                    if 'AHREFS_API_KEY' in line:
                         logger.warning(f"  Рядок {i+1}: {line.strip()}")
     except Exception as e:
         logger.error(f"Помилка при скануванні файлу {file_name}: {e}")
@@ -113,14 +113,14 @@ if hasattr(ahrefs_api, 'check_api_availability'):
             import test_runner
             logger.info("Успішно імпортовано test_runner.py")
             
-            # Перевіримо, чи є у ньому код, який перевіряє AHREFS_API_TOKEN
+            # Перевіримо, чи є у ньому код, який перевіряє AHREFS_API_KEY
             module_source = inspect.getsource(test_runner)
-            if 'AHREFS_API_TOKEN' in module_source:
-                logger.warning("test_runner.py містить AHREFS_API_TOKEN")
+            if 'AHREFS_API_KEY' in module_source:
+                logger.warning("test_runner.py містить AHREFS_API_KEY")
                 # Вивантажимо перший рядок, де він використовується
                 lines = module_source.split('\n')
                 for i, line in enumerate(lines):
-                    if 'AHREFS_API_TOKEN' in line and 'os.getenv' in line:
+                    if 'AHREFS_API_KEY' in line and 'os.getenv' in line:
                         logger.warning(f"  Рядок {i+1}: {line.strip()}")
                         # Якщо це перевірка, давайте спробуємо оцінити цей вираз
                         if 'not os.getenv' in line or 'os.getenv' in line and ' if ' in line:

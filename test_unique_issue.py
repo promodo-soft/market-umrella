@@ -52,17 +52,11 @@ def test_environment_variables():
     
     # Перевіряємо наявність токенів
     ahrefs_token = os.getenv('AHREFS_API_KEY')
-    old_token = os.getenv('AHREFS_API_KEY')
     
     logger.info(f"AHREFS_API_KEY: {'знайдений' if ahrefs_token else 'не знайдений'}")
     if ahrefs_token:
         logger.info(f"  Довжина: {len(ahrefs_token)}")
         logger.info(f"  Перші 4 символи: {ahrefs_token[:4]}")
-    
-    logger.info(f"AHREFS_API_TOKEN: {'знайдений' if old_token else 'не знайдений'}")
-    if old_token:
-        logger.info(f"  Довжина: {len(old_token)}")
-        logger.info(f"  Перші 4 символи: {old_token[:4]}")
     
     logger.info("=== Перевірка завершена ===")
 

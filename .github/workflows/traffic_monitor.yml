@@ -2,8 +2,14 @@ name: Traffic Monitor
 
 on:
   schedule:
-    - cron: '0 10 * * 1'  # Каждый понедельник в 10:00 GMT+2
-  workflow_dispatch:  # Позволяет запускать вручную
+    - cron: '0 10 * * 1'  # Запуск щопонеділка о 10:00 GMT+2
+  workflow_dispatch:      # Можливість запуску вручну з опціональними параметрами
+    inputs:
+      test_mode:
+        description: 'Запустити в тестовому режимі (без оновлення Google Sheets)'
+        type: boolean
+        default: false
+        required: false
 
 jobs:
   monitor:
@@ -13,7 +19,8 @@ jobs:
         python-version: ['3.8.10']
     
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
     
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
@@ -21,7 +28,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
         architecture: 'x64'
     
-    - name: Check Python version
+    - name: Display Python information
       run: |
         python --version
         which python
@@ -33,7 +40,15 @@ jobs:
         python -m pip install pandas==1.2.4
         python -m pip install -r requirements.txt
     
-    - name: Run monitor
+    - name: Run local test (if test_mode is enabled)
+      if: ${{ github.event.inputs.test_mode == 'true' }}
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        AHREFS_API_KEY: ${{ secrets.AHREFS_API_KEY }}
+      run: python test_local.py
+    
+    - name: Run traffic monitor
+      if: ${{ github.event.inputs.test_mode != 'true' }}
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         GOOGLE_SHEETS_CREDENTIALS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}

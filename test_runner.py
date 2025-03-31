@@ -2,25 +2,51 @@ import logging
 import os
 import json
 import pandas as pd
+import traceback
+import sys
 from datetime import datetime, timedelta
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from telegram_bot import send_message
 from ahrefs_api import get_organic_traffic, check_api_availability
 
+# Встановлюємо перехоплювач невловлених виключень
+def handle_uncaught_exception(exc_type, exc_value, exc_traceback):
+    logger.critical("Невловлене виключення", exc_info=(exc_type, exc_value, exc_traceback))
+    # Продовжуємо зі стандартною обробкою
+    sys.__excepthook__(exc_type, exc_value, exc_traceback)
+
+sys.excepthook = handle_uncaught_exception
+
 # Настройка логирования
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,  # Змінено рівень на DEBUG для більше інформації
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# Діагностична інформація про поточне середовище
+logger.info(f"Python версія: {sys.version}")
+logger.info(f"Поточна директорія: {os.getcwd()}")
+logger.info(f"Список файлів в директорії: {', '.join(os.listdir('.')[:10])}...")
 
 # Проверка наличия токенов
 telegram_token = os.getenv('TELEGRAM_BOT_TOKEN')
 ahrefs_token = os.getenv('AHREFS_API_KEY')
 logger.info(f"Telegram token {'знайдений' if telegram_token else 'не знайдений'} в змінних середовища")
 logger.info(f"Ahrefs token {'знайдений' if ahrefs_token else 'не знайдений'} в змінних середовища")
-logger.info(f"Перевіримо дійсність AHREFS_API_KEY: {ahrefs_token[:4]}... (довжина: {len(ahrefs_token)})")
+
+# ДЕБАГ: Виведемо всі змінні середовища (без конфіденційних даних)
+for key, value in os.environ.items():
+    if 'TOKEN' in key or 'KEY' in key or 'SECRET' in key or 'PASS' in key:
+        logger.debug(f"Змінна середовища {key}: {'[знайдена]' if value else '[не знайдена]'}")
+    else:
+        logger.debug(f"Змінна середовища {key}: {value}")
+
+try:
+    logger.info(f"Перевіримо дійсність AHREFS_API_KEY: {ahrefs_token[:4]}... (довжина: {len(ahrefs_token)})")
+except (TypeError, IndexError) as e:
+    logger.error(f"Помилка при доступі до AHREFS_API_KEY: {str(e)}")
 
 # Проверяем наличие устаревшей переменной AHREFS_API_TOKEN
 old_token_name = os.getenv('AHREFS_API_TOKEN')
@@ -32,6 +58,15 @@ if old_token_name:
         logger.info(f"AHREFS_API_KEY встановлено зі значення AHREFS_API_TOKEN.")
 else:
     logger.info("Змінна AHREFS_API_TOKEN не знайдена - це правильно.")
+
+# Трасування виклику функції check_api_availability
+logger.info("Викликаємо check_api_availability()...")
+try:
+    api_available = check_api_availability()
+    logger.info(f"Результат check_api_availability(): {api_available}")
+except Exception as e:
+    logger.error(f"Помилка при перевірці доступності API: {str(e)}")
+    logger.error(f"Traceback: {traceback.format_exc()}")
 
 # Проверка доступности API Ahrefs
 if not check_api_availability():

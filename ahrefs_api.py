@@ -30,6 +30,8 @@ def get_organic_traffic(domain):
         if not AHREFS_API_KEY:
             logger.error("AHREFS_API_KEY не знайдений в змінних середовища")
             return 0
+        
+        logger.info(f"[{domain}] Використовуємо ключ AHREFS_API_KEY (перші 4 символи: {AHREFS_API_KEY[:4]}, довжина: {len(AHREFS_API_KEY)})")
 
         conn = http.client.HTTPSConnection("api.ahrefs.com")
         
@@ -106,6 +108,13 @@ def check_api_availability():
         bool: True, если API доступно, иначе False
     """
     try:
+        logger.info("Початок перевірки доступності API Ahrefs")
+        if not AHREFS_API_KEY:
+            logger.error("AHREFS_API_KEY не знайдений в змінних середовища (в функції check_api_availability)")
+            return False
+            
+        logger.info(f"Використовуємо ключ AHREFS_API_KEY (перші 4 символи: {AHREFS_API_KEY[:4]}, довжина: {len(AHREFS_API_KEY)})")
+        
         conn = http.client.HTTPSConnection("api.ahrefs.com")
         
         headers = {

@@ -38,4 +38,5 @@ jobs:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         GOOGLE_SHEETS_CREDENTIALS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}
         SHEET_ID: ${{ secrets.SHEET_ID }}
+        AHREFS_API_KEY: ${{ secrets.AHREFS_API_KEY }}
       run: python test_runner.py 

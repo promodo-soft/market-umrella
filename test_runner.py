@@ -20,6 +20,18 @@ telegram_token = os.getenv('TELEGRAM_BOT_TOKEN')
 ahrefs_token = os.getenv('AHREFS_API_KEY')
 logger.info(f"Telegram token {'знайдений' if telegram_token else 'не знайдений'} в змінних середовища")
 logger.info(f"Ahrefs token {'знайдений' if ahrefs_token else 'не знайдений'} в змінних середовища")
+logger.info(f"Перевіримо дійсність AHREFS_API_KEY: {ahrefs_token[:4]}... (довжина: {len(ahrefs_token)})")
+
+# Проверяем наличие устаревшей переменной AHREFS_API_TOKEN
+old_token_name = os.getenv('AHREFS_API_TOKEN')
+if old_token_name:
+    logger.warning(f"Знайдено застарілу змінну AHREFS_API_TOKEN. Потрібно використовувати AHREFS_API_KEY.")
+    # Устанавливаем AHREFS_API_KEY из устаревшей переменной, если основная не задана
+    if not ahrefs_token:
+        os.environ['AHREFS_API_KEY'] = old_token_name
+        logger.info(f"AHREFS_API_KEY встановлено зі значення AHREFS_API_TOKEN.")
+else:
+    logger.info("Змінна AHREFS_API_TOKEN не знайдена - це правильно.")
 
 # Проверка доступности API Ahrefs
 if not check_api_availability():
@@ -198,12 +210,19 @@ def run_test():
     Основная функция, которая выполняет проверку и обновление данных
     """
     try:
+        logger.info("=== Початок функції run_test() ===")
         # Проверяем наличие токена
-        if not os.getenv('AHREFS_API_KEY'):
+        api_key = os.getenv('AHREFS_API_KEY')
+        if not api_key:
             logger.error("AHREFS_API_KEY не знайдений в змінних середовища")
-            if send_message("❌ Помилка: AHREFS_API_KEY не знайдений в змінних середовища", test_mode=True):
-                logger.info("Повідомлення про помилку відправлено в Telegram")
+            try:
+                if send_message("❌ Помилка: AHREFS_API_KEY не знайдений в змінних середовища", test_mode=True):
+                    logger.info("Повідомлення про помилку відправлено в Telegram")
+            except Exception as e:
+                logger.error(f"Помилка при відправці повідомлення: {str(e)}")
             return False
+        
+        logger.info(f"У функції run_test() AHREFS_API_KEY знайдений, довжина: {len(api_key)}")
         
         # Загружаем данные из Google Sheets
         logger.info("Запуск тестового режима")

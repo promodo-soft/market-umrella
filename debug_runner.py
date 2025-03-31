@@ -1,100 +1,83 @@
 import logging
 import os
-import json
-import sys
 import traceback
-from datetime import datetime, timedelta
-from telegram_bot import send_message
-from ahrefs_api import get_organic_traffic, check_api_availability
+import platform
+import subprocess
+import sys
+import inspect
+from ahrefs_api import check_api_availability
 
 # Налаштування логування
 logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("debug_runner_fixed.log"),
+        logging.StreamHandler()
+    ]
 )
 logger = logging.getLogger(__name__)
 
-def check_environment():
-    """Перевіряємо змінні середовища"""
-    logger.info("=== Перевірка змінних середовища ===")
+def log_system_info():
+    """Логування інформації про систему"""
+    logger.info(f"Python версія: {sys.version}")
+    logger.info(f"Операційна система: {platform.system()} {platform.version()}")
+    logger.info(f"Поточна директорія: {os.getcwd()}")
     
-    # Перевіряємо, чи існує змінна AHREFS_API_TOKEN
+    # Список файлів у директорії
+    files = os.listdir('.')
+    logger.info(f"Список файлів в директорії: {', '.join(files[:10])}..." if len(files) > 10 else f"Список файлів в директорії: {', '.join(files)}")
     
-    telegram_token = os.getenv('TELEGRAM_BOT_TOKEN')
-    ahrefs_token = os.getenv('AHREFS_API_KEY')
-    
-    logger.info(f"TELEGRAM_BOT_TOKEN {'знайдений' if telegram_token else 'не знайдений'} в змінних середовища")
-    logger.info(f"AHREFS_API_KEY {'знайдений' if ahrefs_token else 'не знайдений'} в змінних середовища")
-    
-    if ahrefs_token:
-        logger.info(f"AHREFS_API_KEY перші 4 символи: {ahrefs_token[:4]}..., довжина: {len(ahrefs_token)}")
-    
-    return telegram_token, ahrefs_token, None
+    # Значення змінних середовища
+    env_vars = ['TELEGRAM_BOT_TOKEN', 'AHREFS_API_KEY', 'AHREFS_API_TOKEN']
+    for var in env_vars:
+        value = os.getenv(var)
+        if value:
+            # Маскуємо токени для безпеки
+            masked_value = value[:4] + '...' + value[-4:] if len(value) > 8 else '****'
+            logger.info(f"{var}: {'знайдений' if value else 'не знайдений'} (довжина: {len(value)})")
+        else:
+            logger.info(f"{var}: не знайдений в змінних середовища")
 
-def check_api():
-    """Тестуємо доступність API"""
-    logger.info("=== Тестуємо доступність API ===")
-    
+def run_command(command):
+    """Виконує команду в консолі та повертає результат"""
     try:
-        result = check_api_availability()
-        logger.info(f"API доступний: {result}")
+        logger.info(f"Виконуємо команду: {command}")
+        result = subprocess.run(command, shell=True, capture_output=True, text=True, check=False)
+        logger.info(f"Код виходу: {result.returncode}")
+        if result.stdout:
+            logger.info(f"Вивід: {result.stdout[:200]}..." if len(result.stdout) > 200 else f"Вивід: {result.stdout}")
+        if result.stderr:
+            logger.warning(f"Помилка: {result.stderr[:200]}..." if len(result.stderr) > 200 else f"Помилка: {result.stderr}")
         return result
     except Exception as e:
-        logger.error(f"Помилка при перевірці API: {str(e)}")
-        logger.error(traceback.format_exc())
-        return False
-
-def check_ahrefs_key():
-    """Імітуємо код, який перевіряє AHREFS_API_KEY"""
-    logger.info("=== Перевірка AHREFS_API_KEY ===")
-    
-    if not os.getenv('AHREFS_API_KEY'):
-        logger.error("AHREFS_API_KEY не знайдений в змінних середовища")
-        if send_message("❌ Помилка: AHREFS_API_KEY не знайдений в змінних середовища", test_mode=True):
-            logger.info("Повідомлення про помилку відправлено в Telegram")
-        return False
-    
-    return True
-
-def monitor_function_calls(target_function, *args, **kwargs):
-    """Моніторинг викликів функцій"""
-    logger.info(f"=== Виклик функції {target_function.__name__} ===")
-    
-    try:
-        result = target_function(*args, **kwargs)
-        logger.info(f"Результат виклику {target_function.__name__}: {result}")
-        return result
-    except Exception as e:
-        logger.error(f"Помилка при виклику {target_function.__name__}: {str(e)}")
-        logger.error(f"Traceback: {traceback.format_exc()}")
+        logger.error(f"Помилка при виконанні команди: {str(e)}")
         return None
 
-def main():
-    logger.info("=== Початок відлагоджувального скрипта ===")
-    
-    # Крок 1: Перевірка змінних середовища
-    telegram_token, ahrefs_token, _ = check_environment()
-    
-    # Крок 2: Перевірка API
-    is_api_available = monitor_function_calls(check_api)
-    
-    # Важливо! Спробуємо знайти місце помилки
-    # Давайте спробуємо дві перевірки у різному порядку
-    
-    logger.info("Спроба 1: Перевірка AHREFS_API_KEY, потім API")
-    success_key = monitor_function_calls(check_ahrefs_key)
-    if success_key:
-        logger.info("AHREFS_API_KEY перевірка пройшла успішно")
-        is_api_available_2 = monitor_function_calls(check_api)
-        if is_api_available_2:
-            logger.info("API доступне в Спробі 1")
-    
-    logger.info("Спроба 2: Перевірка API")
-    is_api_available_3 = monitor_function_calls(check_api)
-    if is_api_available_3:
-        logger.info("API доступне в Спробі 2")
-    
-    logger.info("=== Кінець відлагоджувального скрипта ===")
+def check_api():
+    """Перевіряє доступність API Ahrefs"""
+    logger.info("Перевірка API Ahrefs...")
+    result = check_api_availability()
+    logger.info(f"Результат перевірки API: {'доступний' if result else 'недоступний'}")
+    return result
 
+# Головна функція для запуску діагностики
 if __name__ == "__main__":
-    main() 
+    logger.info("=== Запуск діагностики API ===")
+    
+    # Виводимо системну інформацію
+    log_system_info()
+    
+    # Перевіряємо мережеве з'єднання
+    logger.info("Перевірка мережевого з'єднання до API...")
+    run_command("ping -c 2 api.ahrefs.com" if platform.system() != "Windows" else "ping -n 2 api.ahrefs.com")
+    
+    # Перевіряємо API
+    api_available = check_api()
+    
+    # Підводимо підсумки
+    if api_available:
+        logger.info("✅ API Ahrefs доступний")
+    else:
+        logger.error("❌ API Ahrefs недоступний")
+        exit(1) 

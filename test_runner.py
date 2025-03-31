@@ -25,7 +25,7 @@ logger.info(f"Ahrefs token {'знайдений' if ahrefs_token else 'не зн
 if not check_api_availability():
     error_message = "❌ API Ahrefs недоступне або невірний ключ API. Перевірте налаштування."
     logger.error(error_message)
-    send_message(error_message)
+    send_message(error_message, test_mode=True)
     raise ValueError(error_message)
 
 def init_sheet(service, sheet_id):
@@ -199,9 +199,9 @@ def run_test():
     """
     try:
         # Проверяем наличие токена
-        if not os.getenv('AHREFS_API_TOKEN'):
-            logger.error("AHREFS_API_TOKEN не знайдений в змінних середовища")
-            if send_message("❌ Помилка: AHREFS_API_TOKEN не знайдений в змінних середовища", test_mode=True):
+        if not os.getenv('AHREFS_API_KEY'):
+            logger.error("AHREFS_API_KEY не знайдений в змінних середовища")
+            if send_message("❌ Помилка: AHREFS_API_KEY не знайдений в змінних середовища", test_mode=True):
                 logger.info("Повідомлення про помилку відправлено в Telegram")
             return False
         

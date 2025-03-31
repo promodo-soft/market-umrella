@@ -6,6 +6,14 @@ import traceback
 import sys
 import platform
 import subprocess
+
+# Імпортуємо модуль-патч для підтримки застарілого AHREFS_API_TOKEN
+try:
+    import monkey_patch  # noqa
+except ImportError:
+    # Якщо модуль відсутній, просто продовжуємо роботу
+    pass
+
 from datetime import datetime, timedelta
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
@@ -159,7 +167,7 @@ def analyze_traffic_changes(domains_data):
         domains_data (dict): Словарь с данными о трафике по доменам
         
     Returns:
-        tuple: (bool, str) - (есть ли критические изменения, текст сообщения)
+        tuple: (есть ли критические изменения, текст сообщения)
     """
     critical_changes = []
     consecutive_drops = []

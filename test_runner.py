@@ -434,7 +434,7 @@ def run_test():
         
         # Отправляем сообщение в Telegram
         message = f"✅ Дані про трафік успішно оновлено для {len(domains)} доменів."
-        if send_message(message, test_mode=True):
+        if send_message(message, test_mode=False):
             logger.info("Повідомлення про успішне оновлення відправлено в Telegram")
             
         # Анализируем изменения трафика

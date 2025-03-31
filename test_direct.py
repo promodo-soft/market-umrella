@@ -102,13 +102,13 @@ if hasattr(ahrefs_api, 'check_api_availability'):
     api_available = ahrefs_api.check_api_availability()
     logger.info(f"API Ahrefs: {'доступний' if api_available else 'недоступний'}")
     
-    # Крок 3: Перевірка на наявність AHREFS_API_TOKEN
-    logger.info("Перевірка наявності AHREFS_API_TOKEN (хоча це не повинно використовуватися)")
-    api_token = os.getenv('AHREFS_API_KEY')
-    logger.info(f"AHREFS_API_TOKEN: {'знайдений' if api_token else 'не знайдений'}")
+    # Крок 3: Перевірка на наявність AHREFS_API_KEY (основний ключ API)
+    logger.info("Перевірка наявності AHREFS_API_KEY (основний ключ API)")
+    api_key = os.getenv('AHREFS_API_KEY')
+    logger.info(f"AHREFS_API_KEY: {'знайдений' if api_key else 'не знайдений'}")
     
     # Тільки якщо ми маємо доступ до джерела, перевіряємо це
-    if not api_token:
+    if not api_key:
         try:
             import test_runner
             logger.info("Успішно імпортовано test_runner.py")

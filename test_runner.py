@@ -48,17 +48,6 @@ try:
 except (TypeError, IndexError) as e:
     logger.error(f"Помилка при доступі до AHREFS_API_KEY: {str(e)}")
 
-# Проверяем наличие устаревшей переменной AHREFS_API_TOKEN
-old_token_name = os.getenv('AHREFS_API_TOKEN')
-if old_token_name:
-    logger.warning(f"Знайдено застарілу змінну AHREFS_API_TOKEN. Потрібно використовувати AHREFS_API_KEY.")
-    # Устанавливаем AHREFS_API_KEY из устаревшей переменной, если основная не задана
-    if not ahrefs_token:
-        os.environ['AHREFS_API_KEY'] = old_token_name
-        logger.info(f"AHREFS_API_KEY встановлено зі значення AHREFS_API_TOKEN.")
-else:
-    logger.info("Змінна AHREFS_API_TOKEN не знайдена - це правильно.")
-
 # Трасування виклику функції check_api_availability
 logger.info("Викликаємо check_api_availability()...")
 try:

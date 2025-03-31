@@ -4,6 +4,8 @@ import json
 import pandas as pd
 import traceback
 import sys
+import platform
+import subprocess
 from datetime import datetime, timedelta
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
@@ -235,6 +237,14 @@ def run_test():
     """
     try:
         logger.info("=== Початок функції run_test() ===")
+        
+        # Логуємо системну інформацію
+        log_system_info()
+        
+        # Перевіряємо мережеве з'єднання
+        logger.info("Перевірка мережевого з'єднання до API...")
+        run_command("ping -c 2 api.ahrefs.com" if platform.system() != "Windows" else "ping -n 2 api.ahrefs.com")
+        
         # Проверяем наличие токена
         api_key = os.getenv('AHREFS_API_KEY')
         if not api_key:
@@ -440,6 +450,44 @@ def run_test():
             logger.info("Повідомлення про помилку відправлено в Telegram")
             
         return False
+
+def log_system_info():
+    """Логування інформації про систему"""
+    logger.info(f"Python версія: {sys.version}")
+    logger.info(f"Операційна система: {platform.system()} {platform.version()}")
+    logger.info(f"Поточна директорія: {os.getcwd()}")
+    
+    # Список файлів у директорії
+    files = os.listdir('.')
+    logger.info(f"Список файлів в директорії: {', '.join(files[:10])}..." if len(files) > 10 else f"Список файлів в директорії: {', '.join(files)}")
+    
+    # Значення змінних середовища
+    env_vars = ['TELEGRAM_BOT_TOKEN', 'AHREFS_API_KEY', 'SHEET_ID', 'GOOGLE_SHEETS_CREDENTIALS']
+    for var in env_vars:
+        value = os.getenv(var)
+        if value and var != 'GOOGLE_SHEETS_CREDENTIALS':
+            # Маскуємо токени для безпеки
+            masked_value = value[:4] + '...' + value[-4:] if len(value) > 8 else '****'
+            logger.info(f"{var} {'знайдений' if value else 'не знайдений'} в змінних середовища")
+        elif var == 'GOOGLE_SHEETS_CREDENTIALS':
+            logger.info(f"{var} {'знайдений' if value else 'не знайдений'} в змінних середовища")
+        else:
+            logger.info(f"{var} не знайдений в змінних середовища")
+
+def run_command(command):
+    """Виконує команду в консолі та повертає результат"""
+    try:
+        logger.info(f"Виконуємо команду: {command}")
+        result = subprocess.run(command, shell=True, capture_output=True, text=True, check=False)
+        logger.info(f"Код виходу: {result.returncode}")
+        if result.stdout:
+            logger.info(f"Вивід: {result.stdout[:200]}..." if len(result.stdout) > 200 else f"Вивід: {result.stdout}")
+        if result.stderr:
+            logger.warning(f"Помилка: {result.stderr[:200]}..." if len(result.stderr) > 200 else f"Помилка: {result.stderr}")
+        return result
+    except Exception as e:
+        logger.error(f"Помилка при виконанні команди: {str(e)}")
+        return None
 
 if __name__ == "__main__":
     success = run_test()

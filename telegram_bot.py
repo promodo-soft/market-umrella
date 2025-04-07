@@ -22,7 +22,7 @@ CHAT_ID_FILE = 'chat_id.json'
 CHATS_FILE = 'telegram_chats.json'
 
 # ID чатов, куда не следует отправлять тестовые сообщения
-PRODUCTION_CHAT_IDS = ["-1001930136015", "-1001234567890"]  # Два робочих чати: SEO & CSD та новий робочий чат
+PRODUCTION_CHAT_IDS = ["-1001930136015", "-387031049"]  # Два робочих чати: SEO & CSD та новий робочий чат
 
 # Глобальные переменные
 chat_id = None

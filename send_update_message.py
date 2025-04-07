@@ -76,26 +76,26 @@ def analyze_traffic_changes(domains_data):
     
     # Добавляем форматирование HTML для отправки через Telegram
     if not critical_changes and not consecutive_drops:
-        regular_message = "<b>📊 Результаты мониторинга трафика:</b>\n\n"
-        regular_message += "✅ <b>Критических изменений трафика не выявлено.</b>\n\n"
-        regular_message += "Мониторинг проведен для всех доменов.\n"
-        regular_message += "Все показатели трафика в пределах нормы."
+        regular_message = "<b>📊 Результати моніторингу трафіку:</b>\n\n"
+        regular_message += "✅ <b>Критичних змін трафіку не виявлено.</b>\n\n"
+        regular_message += "Моніторинг проведено для всіх доменів.\n"
+        regular_message += "Всі показники трафіку в межах норми."
         return False, regular_message
     
-    message = "<b>⚠️ Выявлено падение трафика:</b>\n\n"
+    message = "<b>⚠️ Виявлено падіння трафіку:</b>\n\n"
     
     # Сначала выводим резкие падения
     if critical_changes:
-        message += "<b>📉 Резкое падение:</b>\n"
+        message += "<b>📉 Різке падіння:</b>\n"
         for change in sorted(critical_changes, key=lambda x: x['change']):
-            message += f"<code>{change['domain']}</code>: {change['traffic']:,} (падение {abs(change['change']):.1f}%)\n"
+            message += f"<code>{change['domain']}</code>: {change['traffic']:,} (падіння {abs(change['change']):.1f}%)\n"
         message += "\n"
     
     # Затем выводим последовательные падения
     if consecutive_drops:
-        message += "<b>📉 Последовательное падение:</b>\n"
+        message += "<b>📉 Послідовне падіння:</b>\n"
         for drop in sorted(consecutive_drops, key=lambda x: x['change']):
-            message += f"<code>{drop['domain']}</code>: {drop['traffic']:,} (падение {abs(drop['change']):.1f}%, предыд. {abs(drop['prev_change']):.1f}%)\n"
+            message += f"<code>{drop['domain']}</code>: {drop['traffic']:,} (падіння {abs(drop['change']):.1f}%, попер. {abs(drop['prev_change']):.1f}%)\n"
     
     return True, message
 
@@ -156,7 +156,7 @@ def main():
             has_changes, traffic_message = analyze_traffic_changes(domains_data)
             
             # Добавляем примечание о тестовом характере данных
-            traffic_message += "\n\n<i>Примечание: Это тестовое сообщение с примерными данными, так как не удалось получить реальные данные из Google Sheets.</i>"
+            traffic_message += "\n\n<i>Примітка: Це тестове повідомлення з тестовими даними, оскільки не вдалося отримати реальні дані з Google Sheets.</i>"
             
             # Отправляем сообщение в Telegram (test_mode=False для отправки во все чаты)
             logger.info("Отправка тестового сообщения о трафике")
@@ -191,7 +191,7 @@ def main():
             logger.error("Данные не найдены в таблице")
             
             # Отправляем сообщение об отсутствии данных
-            error_message = "❌ Не удалось получить данные о трафике из Google Sheets. Таблица пуста."
+            error_message = "❌ Не вдалося отримати дані про трафік з Google Sheets. Таблиця порожня."
             if send_message(error_message, test_mode=False):
                 logger.info("Сообщение об ошибке успешно отправлено")
                 return True
@@ -247,7 +247,7 @@ def main():
         logger.error(error_details)
         
         # Отправляем сообщение об ошибке
-        error_message = f"❌ Ошибка при формировании сообщения о трафике: {str(e)}"
+        error_message = f"❌ Помилка при формуванні повідомлення про трафік: {str(e)}"
         if send_message(error_message, test_mode=False):
             logger.info("Сообщение об ошибке успешно отправлено")
         

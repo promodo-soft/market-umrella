@@ -214,13 +214,12 @@ def analyze_traffic_changes(domains_data):
                             'prev_change': previous_change
                         })
     
-    # Логирование результатов
-    logger.info(f"Виявлено різких падінь: {len(critical_changes)}")
-    logger.info(f"Виявлено послідовних падінь: {len(consecutive_drops)}")
+    # Текущая дата для отображения в сообщении
+    current_date = datetime.now().strftime("%d.%m.%Y")
     
     # Формируем сообщение
     if not critical_changes and not consecutive_drops:
-        return False, "✅ Критичних змін трафіку не виявлено"
+        return False, f"✅ Критичних змін трафіку не виявлено\n\n📆 Дані порівнюються з показниками тижневої давнини\n📅 Дата звіту: {current_date}"
     
     message = "⚠️ Виявлено падіння трафіку:\n\n"
     
@@ -228,14 +227,17 @@ def analyze_traffic_changes(domains_data):
     if critical_changes:
         message += "📉 Різке падіння:\n"
         for change in sorted(critical_changes, key=lambda x: x['change']):
-            message += f"{change['domain']}: {change['traffic']:,} (падіння {abs(change['change']):.1f}%)\n"
+            message += f"{change['domain']}: {change['traffic']:,} (падіння {abs(change['change']):.1f}% порівняно з минулим тижнем)\n"
         message += "\n"
     
     # Затем выводим последовательные падения
     if consecutive_drops:
         message += "📉 Послідовне падіння:\n"
         for drop in sorted(consecutive_drops, key=lambda x: x['change']):
-            message += f"{drop['domain']}: {drop['traffic']:,} (падіння {abs(drop['change']):.1f}%, попер. {abs(drop['prev_change']):.1f}%)\n"
+            message += f"{drop['domain']}: {drop['traffic']:,} (падіння {abs(drop['change']):.1f}% порівняно з минулим тижнем, попер. падіння {abs(drop['prev_change']):.1f}%)\n"
+    
+    # Добавляем пояснение и дату
+    message += f"\n📌 Всі показники порівнюються з даними тижневої давнини\n📅 Дата звіту: {current_date}"
     
     return True, message
 
@@ -433,7 +435,7 @@ def run_test():
                     }
         
         # Отправляем сообщение в Telegram
-        message = f"✅ Дані про трафік успішно оновлено для {len(domains)} доменів."
+        message = f"✅ Дані про трафік успішно оновлено для {len(domains)} доменів.\n\n📆 Дані порівнюються з показниками тижневої давнини\n📅 Дата: {datetime.now().strftime('%d.%m.%Y')}"
         if send_message(message, test_mode=False):
             logger.info("Повідомлення про успішне оновлення відправлено в Telegram")
             

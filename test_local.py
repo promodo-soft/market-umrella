@@ -96,8 +96,9 @@ def main():
             message += f"{domain}: {traffic:,}\n"
         
         # Додаємо відмітку часу
-        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        message += f"\nДата: {now}"
+        now = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+        message += f"\n📆 Дані порівнюються з показниками тижневої давнини"
+        message += f"\n📅 Дата звіту: {now}"
         
         # Відправка повідомлення в Telegram
         if send_message(message, test_mode=True):

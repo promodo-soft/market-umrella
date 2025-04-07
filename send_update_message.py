@@ -74,12 +74,17 @@ def analyze_traffic_changes(domains_data):
                             'prev_change': previous_change
                         })
     
+    # Текущая дата для отображения в сообщении
+    current_date = datetime.now().strftime("%d.%m.%Y")
+    
     # Добавляем форматирование HTML для отправки через Telegram
     if not critical_changes and not consecutive_drops:
         regular_message = "<b>📊 Результати моніторингу трафіку:</b>\n\n"
         regular_message += "✅ <b>Критичних змін трафіку не виявлено.</b>\n\n"
         regular_message += "Моніторинг проведено для всіх доменів.\n"
-        regular_message += "Всі показники трафіку в межах норми."
+        regular_message += "Всі показники трафіку в межах норми.\n\n"
+        regular_message += "<i>📆 Дані порівнюються з показниками тижневої давнини.</i>\n"
+        regular_message += f"<i>📅 Дата звіту: {current_date}</i>"
         return False, regular_message
     
     message = "<b>⚠️ Виявлено падіння трафіку:</b>\n\n"
@@ -88,14 +93,18 @@ def analyze_traffic_changes(domains_data):
     if critical_changes:
         message += "<b>📉 Різке падіння:</b>\n"
         for change in sorted(critical_changes, key=lambda x: x['change']):
-            message += f"<code>{change['domain']}</code>: {change['traffic']:,} (падіння {abs(change['change']):.1f}%)\n"
+            message += f"<code>{change['domain']}</code>: {change['traffic']:,} (падіння {abs(change['change']):.1f}% порівняно з минулим тижнем)\n"
         message += "\n"
     
     # Затем выводим последовательные падения
     if consecutive_drops:
         message += "<b>📉 Послідовне падіння:</b>\n"
         for drop in sorted(consecutive_drops, key=lambda x: x['change']):
-            message += f"<code>{drop['domain']}</code>: {drop['traffic']:,} (падіння {abs(drop['change']):.1f}%, попер. {abs(drop['prev_change']):.1f}%)\n"
+            message += f"<code>{drop['domain']}</code>: {drop['traffic']:,} (падіння {abs(drop['change']):.1f}% порівняно з минулим тижнем, попер. падіння {abs(drop['prev_change']):.1f}%)\n"
+    
+    # Добавляем пояснение и дату отчета
+    message += "\n<i>📌 Всі показники порівнюються з даними тижневої давнини.</i>\n"
+    message += f"<i>📅 Дата звіту: {current_date}</i>"
     
     return True, message
 

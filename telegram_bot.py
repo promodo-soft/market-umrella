@@ -23,6 +23,7 @@ CHATS_FILE = 'telegram_chats.json'
 
 # ID чатов, куда не следует отправлять тестовые сообщения
 PRODUCTION_CHAT_IDS = ["-1001930136015", "-387031049"]  # Два робочих чати: SEO & CSD та Promodo Sales & SEO
+# Тестовий чат с ID -600437720 буде отримувати всі повідомлення
 
 # Глобальные переменные
 chat_id = None
@@ -64,10 +65,6 @@ def load_chat_id():
                         logger.error(f"Некорректний chat_id в файлі: {cid_str}")
                 
                 logger.info(f"Загружено {len(chat_ids)} чатів")
-                
-        # Если основной chat_id есть, но его нет в списке всех чатов, добавляем
-        if chat_id and chat_id not in chat_ids:
-            chat_ids.append(chat_id)
             
         # Удаляем дубликаты
         chat_ids = list(set(chat_ids))

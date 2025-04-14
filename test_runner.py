@@ -365,7 +365,11 @@ def run_test():
             
             # Анализируем изменения и отправляем уведомление
             has_changes, message = analyze_traffic_changes(domains_data)
-            telegram_result = send_message(message)
+            
+            # Додаємо інформацію про кількість доменів
+            message = f"✅ Дані про трафік успішно оновлено для {len(domains_data)} доменів\n\n" + message
+            
+            telegram_result = send_message(message, parse_mode="HTML", test_mode=False)
             logger.info(f"Результат відправки в Telegram: {'успішно' if telegram_result else 'помилка'}")
             
             return True
@@ -434,17 +438,15 @@ def run_test():
                         'history': history
                     }
         
-        # Отправляем сообщение в Telegram
-        message = f"✅ Дані про трафік успішно оновлено для {len(domains)} доменів.\n\n📆 Дані порівнюються з показниками тижневої давнини\n📅 Дата: {datetime.now().strftime('%d.%m.%Y')}"
-        if send_message(message, test_mode=False):
-            logger.info("Повідомлення про успішне оновлення відправлено в Telegram")
-            
         # Анализируем изменения трафика
         has_changes, traffic_message = analyze_traffic_changes(domains_data)
-        if has_changes:
-            # Отправляем результаты анализа в Telegram
-            if send_message(traffic_message, parse_mode="HTML", test_mode=False):  # Важные уведомления отправляем во все чаты
-                logger.info("Повідомлення про зміни трафіку відправлено в Telegram")
+        
+        # Додаємо до traffic_message інформацію про кількість оновлених доменів
+        traffic_message = f"✅ Дані про трафік успішно оновлено для {len(domains)} доменів\n\n" + traffic_message
+        
+        # Отправляем результаты анализа в Telegram
+        if send_message(traffic_message, parse_mode="HTML", test_mode=False):  # Важные уведомления отправляем во все чаты
+            logger.info("Повідомлення про зміни трафіку відправлено в Telegram")
         
         return True
     

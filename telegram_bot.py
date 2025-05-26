@@ -22,7 +22,7 @@ CHAT_ID_FILE = 'chat_id.json'
 CHATS_FILE = 'telegram_chats.json'
 
 # ID чатов, куда не следует отправлять тестовые сообщения
-PRODUCTION_CHAT_IDS = ["-1001930136015", "-387031049"]  # Два робочих чати: SEO & CSD та Promodo Sales & SEO
+PRODUCTION_CHAT_IDS = ["-1001930136015", "-387031049", "-1001177341323"]  # Три робочих чати: SEO & CSD, Promodo Sales & SEO та Promodo SEO
 # Тестовий чат "Кря_Team - Dream Team🤗" з ID -600437720 буде отримувати всі повідомлення
 
 # Глобальные переменные
@@ -195,13 +195,11 @@ def notify_traffic_update(domains_data, mode='production'):
     domains_to_notify = []
     for domain, data in domains_data.items():
         history = data.get('history', [])
-        if len(history) >= 2:  # Нужно минимум 2 записи для проверки
-            # Получаем последние записи
+        if len(history) >= 2:
             last_entries = sorted(history, key=lambda x: x['date'])
-            
-            # Получаем значения трафика
-            traffic_current = last_entries[-1]['traffic']  # Последнее измерение
-            traffic_previous = last_entries[-2]['traffic']  # Предыдущее измерение
+            # Теперь сравниваем с датой двухнедельной давности
+            traffic_current = last_entries[-1]['traffic']
+            traffic_previous = last_entries[-3]['traffic'] if len(last_entries) >= 3 else last_entries[0]['traffic']
             
             # Проверяем, что значения трафика корректные (больше 1000)
             if traffic_current < 1000 or traffic_previous < 1000:
@@ -213,20 +211,42 @@ def notify_traffic_update(domains_data, mode='production'):
             
             should_notify = False
             previous_change = None
+            triple_change = None
             
             # Проверяем условие падения на 11% при последнем съеме
             if last_change <= -11:
                 should_notify = True
             
             # Проверяем условие двух последовательных падений по 5%
-            elif len(history) >= 3:
+            if len(history) >= 3:
                 traffic_before_previous = last_entries[-3]['traffic']  # Измерение перед предыдущим
-                
-                # Проверяем, что предыдущее значение тоже корректное
                 if traffic_before_previous >= 1000:
                     previous_change = ((traffic_previous - traffic_before_previous) / traffic_before_previous) * 100
-                    
                     if previous_change <= -5 and last_change <= -5:
+                        should_notify = True
+            
+            # Новое условие: падение более 3% в трех последних измерениях подряд
+            if len(history) >= 4:
+                traffic_3ago = last_entries[-4]['traffic']
+                if traffic_3ago >= 1000:
+                    change_2 = ((traffic_before_previous - traffic_3ago) / traffic_3ago) * 100
+                    if change_2 <= -3 and previous_change is not None and previous_change <= -3 and last_change <= -3:
+                        should_notify = True
+                        triple_change = change_2
+            
+            # Новое условие: падение более 2% в четырех последних измерениях подряд
+            if len(history) >= 5:
+                t4 = last_entries[-5]['traffic']
+                t3 = last_entries[-4]['traffic']
+                t2 = last_entries[-3]['traffic']
+                t1 = last_entries[-2]['traffic']
+                t0 = last_entries[-1]['traffic']
+                if all(x >= 1000 for x in [t0, t1, t2, t3, t4]):
+                    chg1 = ((t0 - t1) / t1) * 100
+                    chg2 = ((t1 - t2) / t2) * 100
+                    chg3 = ((t2 - t3) / t3) * 100
+                    chg4 = ((t3 - t4) / t4) * 100
+                    if chg1 <= -2 and chg2 <= -2 and chg3 <= -2 and chg4 <= -2:
                         should_notify = True
             
             if mode == 'test' or should_notify:
@@ -235,7 +255,8 @@ def notify_traffic_update(domains_data, mode='production'):
                     'traffic': traffic_current,
                     'previous_traffic': traffic_previous,
                     'change': last_change,
-                    'previous_change': previous_change if previous_change is not None else 0
+                    'previous_change': previous_change if previous_change is not None else 0,
+                    'triple_change': triple_change if triple_change is not None else 0
                 }
                 domains_to_notify.append(notify_data)
     
@@ -267,12 +288,26 @@ def notify_traffic_update(domains_data, mode='production'):
             traffic = domain_data['traffic']
             change = domain_data['change']
             prev_change = domain_data['previous_change']
-            
+            triple_change = domain_data.get('triple_change', 0)
+            # Для условия 4×2% подряд
+            chg1 = chg2 = chg3 = chg4 = None
+            if 'chg1' in domain_data:
+                chg1 = domain_data['chg1']
+                chg2 = domain_data['chg2']
+                chg3 = domain_data['chg3']
+                chg4 = domain_data['chg4']
+
             # Формируем сообщение в зависимости от типа падения
             if change <= -11:
                 message += f"{domain}: {traffic:,} (📉 {change:.1f}% - різке падіння)\n"
-            else:
+            elif prev_change <= -5 and change <= -5:
                 message += f"{domain}: {traffic:,} (📉 {change:.1f}%, попер. {prev_change:.1f}%)\n"
+            elif triple_change != 0 and triple_change <= -3 and prev_change <= -3 and change <= -3:
+                message += f"{domain}: {traffic:,} (📉 {change:.1f}%, три поспіль падіння: {triple_change:.1f}%, {prev_change:.1f}%, {change:.1f}%)\n"
+            elif chg1 is not None and chg2 is not None and chg3 is not None and chg4 is not None and chg1 <= -2 and chg2 <= -2 and chg3 <= -2 and chg4 <= -2:
+                message += f"{domain}: {traffic:,} (📉 {change:.1f}%, чотири поспіль падіння: {chg4:.1f}%, {chg3:.1f}%, {chg2:.1f}%, {chg1:.1f}%)\n"
+            else:
+                message += f"{domain}: {traffic:,} (�� {change:.1f}%)\n"
         
         try:
             get_updater().bot.send_message(

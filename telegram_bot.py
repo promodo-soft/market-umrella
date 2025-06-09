@@ -234,20 +234,7 @@ def notify_traffic_update(domains_data, mode='production'):
                         should_notify = True
                         triple_change = change_2
             
-            # Новое условие: падение более 2% в четырех последних измерениях подряд
-            if len(history) >= 5:
-                t4 = last_entries[-5]['traffic']
-                t3 = last_entries[-4]['traffic']
-                t2 = last_entries[-3]['traffic']
-                t1 = last_entries[-2]['traffic']
-                t0 = last_entries[-1]['traffic']
-                if all(x >= 1000 for x in [t0, t1, t2, t3, t4]):
-                    chg1 = ((t0 - t1) / t1) * 100
-                    chg2 = ((t1 - t2) / t2) * 100
-                    chg3 = ((t2 - t3) / t3) * 100
-                    chg4 = ((t3 - t4) / t4) * 100
-                    if chg1 <= -2 and chg2 <= -2 and chg3 <= -2 and chg4 <= -2:
-                        should_notify = True
+
             
             if mode == 'test' or should_notify:
                 notify_data = {
@@ -289,13 +276,7 @@ def notify_traffic_update(domains_data, mode='production'):
             change = domain_data['change']
             prev_change = domain_data['previous_change']
             triple_change = domain_data.get('triple_change', 0)
-            # Для условия 4×2% подряд
-            chg1 = chg2 = chg3 = chg4 = None
-            if 'chg1' in domain_data:
-                chg1 = domain_data['chg1']
-                chg2 = domain_data['chg2']
-                chg3 = domain_data['chg3']
-                chg4 = domain_data['chg4']
+
 
             # Формируем сообщение в зависимости от типа падения
             if change <= -11:
@@ -304,8 +285,6 @@ def notify_traffic_update(domains_data, mode='production'):
                 message += f"{domain}: {traffic:,} (📉 {change:.1f}%, попер. {prev_change:.1f}%)\n"
             elif triple_change != 0 and triple_change <= -3 and prev_change <= -3 and change <= -3:
                 message += f"{domain}: {traffic:,} (📉 {change:.1f}%, три поспіль падіння: {triple_change:.1f}%, {prev_change:.1f}%, {change:.1f}%)\n"
-            elif chg1 is not None and chg2 is not None and chg3 is not None and chg4 is not None and chg1 <= -2 and chg2 <= -2 and chg3 <= -2 and chg4 <= -2:
-                message += f"{domain}: {traffic:,} (📉 {change:.1f}%, чотири поспіль падіння: {chg4:.1f}%, {chg3:.1f}%, {chg2:.1f}%, {chg1:.1f}%)\n"
             else:
                 message += f"{domain}: {traffic:,} (�� {change:.1f}%)\n"
         

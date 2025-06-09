@@ -20,91 +20,101 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def analyze_traffic_changes(domains_data):
-    """
-    Анализирует изменения трафика и формирует сообщение для Telegram.
-    
-    Args:
-        domains_data (dict): Словарь с данными о трафике по доменам
-        
-    Returns:
-        tuple: (есть ли критические изменения, текст сообщения)
-    """
+    """Анализирует изменения трафика и формирует сообщение для Telegram"""
     critical_changes = []
     consecutive_drops = []
-    
-    logger.info(f"Анализируем изменения трафика для {len(domains_data)} доменов")
+    triple_drops = []
     
     for domain, data in domains_data.items():
         history = data.get('history', [])
         if len(history) >= 2:
-            current_traffic = history[0]['traffic']  # Текущий трафик
-            previous_traffic = history[1]['traffic']  # Предыдущий трафик
+            # Сортируем историю по дате
+            sorted_history = sorted(history, key=lambda x: x['date'])
             
-            # Логируем все изменения трафика для диагностики
-            change_percent = ((current_traffic - previous_traffic) / previous_traffic) * 100 if previous_traffic > 0 else 0
-            logger.info(f"Домен {domain}: текущий трафик {current_traffic}, предыдущий {previous_traffic}, изменение {change_percent:.1f}%")
+            current_traffic = sorted_history[-1]['traffic']  # Последний (самый новый)
+            previous_traffic = sorted_history[-3]['traffic'] if len(sorted_history) >= 3 else sorted_history[0]['traffic']  # Двухнедельной давности
             
             # Пропускаем домены с трафиком меньше 1000
             if current_traffic < 1000 or previous_traffic < 1000:
-                logger.info(f"Пропускаем домен {domain} из-за недостаточного трафика")
                 continue
             
             # Вычисляем изменение в процентах
             change = ((current_traffic - previous_traffic) / previous_traffic) * 100
             
-            # Проверяем условия падения трафика
-            if change <= -11:  # Резкое падение более 11%
-                logger.info(f"Обнаружено резкое падение для {domain}: {change:.1f}%")
+            # Флаг для определения, нужно ли уведомлять
+            should_notify = False
+            previous_change = None
+            
+            # 1. Проверяем условие резкого падения на 11%
+            if change <= -11:
                 critical_changes.append({
                     'domain': domain,
                     'traffic': current_traffic,
-                    'change': change,
-                    'type': 'sharp'
+                    'change': change
                 })
-            elif len(history) >= 3:  # Проверяем два последовательных падения
-                traffic_before_previous = history[2]['traffic']  # Трафик перед предыдущим
+                should_notify = True
+                
+            # 2. Проверяем условие двух последовательных падений по 5%
+            elif len(sorted_history) >= 3:
+                traffic_before_previous = sorted_history[-3]['traffic']  # Измерение перед предыдущим
                 if traffic_before_previous >= 1000:
                     previous_change = ((previous_traffic - traffic_before_previous) / traffic_before_previous) * 100
-                    if previous_change <= -5 and change <= -5:  # Два последовательных падения по 5%
-                        logger.info(f"Обнаружено последовательное падение для {domain}: текущее {change:.1f}%, предыдущее {previous_change:.1f}%")
+                    if previous_change <= -5 and change <= -5:
                         consecutive_drops.append({
                             'domain': domain,
                             'traffic': current_traffic,
                             'change': change,
                             'prev_change': previous_change
                         })
+                        should_notify = True
+            
+            # 3. Условие: падение более 3% в трех последних измерениях подряд
+            if len(sorted_history) >= 4 and not should_notify:
+                traffic_3ago = sorted_history[-4]['traffic']
+                if traffic_3ago >= 1000 and previous_change is not None:
+                    change_2 = ((traffic_before_previous - traffic_3ago) / traffic_3ago) * 100
+                    if change_2 <= -3 and previous_change <= -3 and change <= -3:
+                        triple_drops.append({
+                            'domain': domain,
+                            'traffic': current_traffic,
+                            'change': change,
+                            'prev_change': previous_change,
+                            'triple_change': change_2
+                        })
+                        should_notify = True
     
-    # Текущая дата для отображения в сообщении
+    # Текущая дата
     current_date = datetime.now().strftime("%d.%m.%Y")
     
-    # Добавляем форматирование HTML для отправки через Telegram
-    if not critical_changes and not consecutive_drops:
-        regular_message = "<b>📊 Результати моніторингу трафіку:</b>\n\n"
-        regular_message += "✅ <b>Критичних змін трафіку не виявлено.</b>\n\n"
-        regular_message += "Моніторинг проведено для всіх доменів.\n"
-        regular_message += "Всі показники трафіку в межах норми.\n\n"
-        regular_message += "<i>📆 Дані порівнюються з показниками тижневої давнини.</i>\n"
-        regular_message += f"<i>📅 Дата звіту: {current_date}</i>"
-        return False, regular_message
+    # Проверяем, есть ли критические изменения
+    if not critical_changes and not consecutive_drops and not triple_drops:
+        return False, f"✅ Критичних змін трафіку не виявлено\n\n📆 Дані порівнюються з показниками двотижневої давнини\n📅 Дата звіту: {current_date}"
     
-    message = "<b>⚠️ Виявлено падіння трафіку:</b>\n\n"
+    message = "⚠️ Виявлено падіння трафіку:\n\n"
     
-    # Сначала выводим резкие падения
+    # Резкие падения
     if critical_changes:
-        message += "<b>📉 Різке падіння:</b>\n"
+        message += "📉 <b>Різке падіння:</b>\n"
         for change in sorted(critical_changes, key=lambda x: x['change']):
-            message += f"<code>{change['domain']}</code>: {change['traffic']:,} (падіння {abs(change['change']):.1f}% порівняно з минулим тижнем)\n"
+            message += f"• <b>{change['domain']}</b>: {change['traffic']:,} (падіння {abs(change['change']):.1f}% порівняно з двотижневою давниною)\n"
         message += "\n"
     
-    # Затем выводим последовательные падения
+    # Последовательные падения
     if consecutive_drops:
-        message += "<b>📉 Послідовне падіння:</b>\n"
+        message += "📉 <b>Послідовне падіння:</b>\n"
         for drop in sorted(consecutive_drops, key=lambda x: x['change']):
-            message += f"<code>{drop['domain']}</code>: {drop['traffic']:,} (падіння {abs(drop['change']):.1f}% порівняно з минулим тижнем, попер. падіння {abs(drop['prev_change']):.1f}%)\n"
+            message += f"• <b>{drop['domain']}</b>: {drop['traffic']:,} (падіння {abs(drop['change']):.1f}% порівняно з двотижневою давниною, попер. падіння {abs(drop['prev_change']):.1f}%)\n"
+        message += "\n"
     
-    # Добавляем пояснение и дату отчета
-    message += "\n<i>📌 Всі показники порівнюються з даними тижневої давнини.</i>\n"
-    message += f"<i>📅 Дата звіту: {current_date}</i>"
+    # Тройные падения
+    if triple_drops:
+        message += "📉 <b>Потрійне падіння:</b>\n"
+        for drop in sorted(triple_drops, key=lambda x: x['change']):
+            message += f"• <b>{drop['domain']}</b>: {drop['traffic']:,} (три поспіль падіння: {abs(drop['triple_change']):.1f}%, {abs(drop['prev_change']):.1f}%, {abs(drop['change']):.1f}%)\n"
+        message += "\n"
+    
+    # Пояснение
+    message += f"📌 Всі показники порівнюються з даними двотижневої давнини\n📅 Дата звіту: {current_date}"
     
     return True, message
 

@@ -6,11 +6,13 @@ import pytz
 load_dotenv()
 
 # Ahrefs API
-AHREFS_API_KEY = os.getenv('AHREFS_API_KEY', 'CxSe8somAMpahxIBAcX0vEv-AQsWbl_fqrcJbfIp')
+AHREFS_API_KEY = os.getenv('AHREFS_API_KEY')
 AHREFS_API_URL = 'https://api.ahrefs.com'  # Базовый URL без версии API
 
 # Telegram Bot
-TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '7893839978:AAGGMxnFq3idN_JGn-D2808eGeLMHJCIeAs')
+TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+if not TELEGRAM_BOT_TOKEN:
+    raise ValueError("TELEGRAM_BOT_TOKEN не найден в переменных окружения")
 
 # Файлы
 DOMAINS_FILE = 'domains.txt'

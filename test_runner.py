@@ -171,14 +171,18 @@ def analyze_traffic_changes(domains_data):
     """
     critical_changes = []
     consecutive_drops = []
+    triple_drops = []
     
     logger.info(f"Аналізуємо зміни трафіку для {len(domains_data)} доменів")
     
     for domain, data in domains_data.items():
         history = data.get('history', [])
         if len(history) >= 2:
-            current_traffic = history[0]['traffic']  # Текущий трафик теперь первый в истории
-            previous_traffic = history[1]['traffic']  # Предыдущий - второй
+            # Сортируем историю по дате
+            sorted_history = sorted(history, key=lambda x: x['date'])
+            
+            current_traffic = sorted_history[-1]['traffic']  # Последний (самый новый)
+            previous_traffic = sorted_history[-3]['traffic'] if len(sorted_history) >= 3 else sorted_history[0]['traffic']  # Двухнедельной давности
             
             # Логируем все изменения трафика для диагностики
             change_percent = ((current_traffic - previous_traffic) / previous_traffic) * 100 if previous_traffic > 0 else 0
@@ -192,8 +196,13 @@ def analyze_traffic_changes(domains_data):
             # Вычисляем изменение в процентах
             change = ((current_traffic - previous_traffic) / previous_traffic) * 100
             
-            # Проверяем условия падения трафика
-            if change <= -11:  # Резкое падение более 11%
+            # Флаг для определения, нужно ли уведомлять
+            should_notify = False
+            previous_change = None
+            triple_change = None
+            
+            # 1. Проверяем условие резкого падения на 11%
+            if change <= -11:
                 logger.info(f"Виявлено різке падіння для {domain}: {change:.1f}%")
                 critical_changes.append({
                     'domain': domain,
@@ -201,11 +210,14 @@ def analyze_traffic_changes(domains_data):
                     'change': change,
                     'type': 'sharp'
                 })
-            elif len(history) >= 3:  # Проверяем два последовательных падения
-                traffic_before_previous = history[2]['traffic']  # Третий в истории
+                should_notify = True
+            
+            # 2. Проверяем условие двух последовательных падений по 5%
+            elif len(sorted_history) >= 3:
+                traffic_before_previous = sorted_history[-3]['traffic']  # Измерение перед предыдущим
                 if traffic_before_previous >= 1000:
                     previous_change = ((previous_traffic - traffic_before_previous) / traffic_before_previous) * 100
-                    if previous_change <= -5 and change <= -5:  # Два последовательных падения по 5%
+                    if previous_change <= -5 and change <= -5:
                         logger.info(f"Виявлено послідовне падіння для {domain}: поточне {change:.1f}%, попереднє {previous_change:.1f}%")
                         consecutive_drops.append({
                             'domain': domain,
@@ -213,12 +225,29 @@ def analyze_traffic_changes(domains_data):
                             'change': change,
                             'prev_change': previous_change
                         })
+                        should_notify = True
+            
+            # 3. Условие: падение более 3% в трех последних измерениях подряд
+            if len(sorted_history) >= 4 and not should_notify:
+                traffic_3ago = sorted_history[-4]['traffic']
+                if traffic_3ago >= 1000 and previous_change is not None:
+                    change_2 = ((traffic_before_previous - traffic_3ago) / traffic_3ago) * 100
+                    if change_2 <= -3 and previous_change <= -3 and change <= -3:
+                        logger.info(f"Виявлено потрійне падіння для {domain}: {change_2:.1f}%, {previous_change:.1f}%, {change:.1f}%")
+                        triple_drops.append({
+                            'domain': domain,
+                            'traffic': current_traffic,
+                            'change': change,
+                            'prev_change': previous_change,
+                            'triple_change': change_2
+                        })
+                        should_notify = True
     
     # Текущая дата для отображения в сообщении
     current_date = datetime.now().strftime("%d.%m.%Y")
     
     # Формируем сообщение
-    if not critical_changes and not consecutive_drops:
+    if not critical_changes and not consecutive_drops and not triple_drops:
         return False, f"✅ Критичних змін трафіку не виявлено\n\n📆 Дані порівнюються з показниками двотижневої давнини\n📅 Дата звіту: {current_date}"
     
     message = "⚠️ Виявлено падіння трафіку:\n\n"
@@ -235,9 +264,17 @@ def analyze_traffic_changes(domains_data):
         message += "📉 Послідовне падіння:\n"
         for drop in sorted(consecutive_drops, key=lambda x: x['change']):
             message += f"{drop['domain']}: {drop['traffic']:,} (падіння {abs(drop['change']):.1f}% порівняно з двотижневою давниною, попер. падіння {abs(drop['prev_change']):.1f}%)\n"
+        message += "\n"
+    
+    # Тройные падения
+    if triple_drops:
+        message += "📉 Потрійне падіння:\n"
+        for drop in sorted(triple_drops, key=lambda x: x['change']):
+            message += f"{drop['domain']}: {drop['traffic']:,} (три поспіль падіння: {abs(drop['triple_change']):.1f}%, {abs(drop['prev_change']):.1f}%, {abs(drop['change']):.1f}%)\n"
+        message += "\n"
     
     # Добавляем пояснение и дату
-    message += f"\n📌 Всі показники порівнюються з даними двотижневої давнини\n📅 Дата звіту: {current_date}"
+    message += f"📌 Всі показники порівнюються з даними двотижневої давнини\n📅 Дата звіту: {current_date}"
     
     return True, message
 
@@ -271,8 +308,8 @@ def run_test():
         # Загружаем данные из Google Sheets
         logger.info("Запуск тестового режима")
         
-        # Настройка доступа к Google Sheets
-        sheet_id = os.getenv('SHEET_ID')
+        # Настройка доступа к Google Sheets (используем ID из указанной таблицы)
+        sheet_id = '1iwr3qku-JcMMqEBTYdWeWRUXfmC9sLp_s-q-Ruxj5xs'
         logger.info(f"Sheet ID: {sheet_id}")
         
         # Настройка учетных данных для Google Sheets API

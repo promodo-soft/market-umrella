@@ -335,7 +335,7 @@ def send_message_to_chats(message: str, parse_mode: str = None, test_mode: bool 
     Returns:
         bool: True, если сообщение отправлено хотя бы в один чат, иначе False
     """
-    logger.info("Відправка повідомлення у всі чати")
+    logger.info(f"Відправка повідомлення у всі чати (test_mode={test_mode})")
     
     if not TELEGRAM_BOT_TOKEN:
         logger.error("Токен Telegram бота не налаштований")
@@ -348,38 +348,87 @@ def send_message_to_chats(message: str, parse_mode: str = None, test_mode: bool 
         logger.error("Немає збережених чатів для відправки")
         return False
     
+    logger.info(f"Знайдено {len(chat_ids)} чатів у файлі telegram_chats.json")
+    
     # Фильтруем чаты в зависимости от режима
     target_chat_ids = []
+    logger.info(f"Робочі чати (PRODUCTION_CHAT_IDS): {PRODUCTION_CHAT_IDS}")
+    
     for cid in chat_ids:
         cid_str = str(cid)
         # В тестовом режиме пропускаем рабочие чаты
         if test_mode and cid_str in PRODUCTION_CHAT_IDS:
             logger.info(f"Пропускаємо робочий чат {cid} в тестовому режимі")
             continue
+        
+        # Логируем какой чат добавляем
+        is_production = cid_str in PRODUCTION_CHAT_IDS
+        logger.info(f"Додаємо чат {cid} для відправки ({'робочий' if is_production else 'тестовий'})")
         target_chat_ids.append(cid)
     
     logger.info(f"Знайдено {len(target_chat_ids)} з {len(chat_ids)} чатів для відправки")
     
     success = False
+    
+    # Розбиваємо довге повідомлення на частини (макс 4000 символів для безпеки)
+    max_length = 4000
+    message_parts = []
+    
+    if len(message) <= max_length:
+        message_parts = [message]
+    else:
+        # Розбиваємо повідомлення по рядках
+        lines = message.split('\n')
+        current_part = ""
+        
+        for line in lines:
+            if len(current_part + line + '\n') <= max_length:
+                current_part += line + '\n'
+            else:
+                if current_part:
+                    message_parts.append(current_part.rstrip())
+                    current_part = line + '\n'
+                else:
+                    # Якщо один рядок довший за максимум, розбиваємо його
+                    while len(line) > max_length:
+                        message_parts.append(line[:max_length])
+                        line = line[max_length:]
+                    current_part = line + '\n'
+        
+        if current_part:
+            message_parts.append(current_part.rstrip())
+    
+    logger.info(f"Повідомлення розбито на {len(message_parts)} частин")
+    
     for cid in target_chat_ids:
-        try:
-            logger.info(f"Відправка повідомлення в чат {cid}")
-            get_updater().bot.send_message(
-                chat_id=cid,
-                text=message,
-                parse_mode=parse_mode
-            )
-            success = True
-            logger.info(f"Повідомлення успішно відправлено в чат {cid}")
-        except Exception as e:
-            logger.error(f"Помилка при відправці повідомлення в чат {cid}: {str(e)}")
+        chat_success = False
+        for i, part in enumerate(message_parts):
             try:
-                # Пробуем отправить без форматирования
-                get_updater().bot.send_message(chat_id=cid, text=message)
-                success = True
-                logger.info(f"Повідомлення успішно відправлено без форматування в чат {cid}")
-            except Exception as e2:
-                logger.error(f"Повторна помилка при відправці повідомлення в чат {cid}: {str(e2)}")
+                # Додаємо номер частини якщо їх більше одної
+                final_message = part
+                if len(message_parts) > 1:
+                    final_message = f"📄 Частина {i+1}/{len(message_parts)}\n\n{part}"
+                
+                logger.info(f"Відправка повідомлення в чат {cid} (частина {i+1}/{len(message_parts)})")
+                get_updater().bot.send_message(
+                    chat_id=cid,
+                    text=final_message,
+                    parse_mode=parse_mode
+                )
+                chat_success = True
+                logger.info(f"Частина {i+1}/{len(message_parts)} успішно відправлена в чат {cid}")
+            except Exception as e:
+                logger.error(f"Помилка при відправці частини {i+1} в чат {cid}: {str(e)}")
+                try:
+                    # Пробуем отправить без форматирования
+                    get_updater().bot.send_message(chat_id=cid, text=final_message)
+                    chat_success = True
+                    logger.info(f"Частина {i+1} успішно відправлена без форматування в чат {cid}")
+                except Exception as e2:
+                    logger.error(f"Повторна помилка при відправці частини {i+1} в чат {cid}: {str(e2)}")
+        
+        if chat_success:
+            success = True
     
     return success
 

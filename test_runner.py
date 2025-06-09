@@ -219,7 +219,7 @@ def analyze_traffic_changes(domains_data):
     
     # Формируем сообщение
     if not critical_changes and not consecutive_drops:
-        return False, f"✅ Критичних змін трафіку не виявлено\n\n📆 Дані порівнюються з показниками тижневої давнини\n📅 Дата звіту: {current_date}"
+        return False, f"✅ Критичних змін трафіку не виявлено\n\n📆 Дані порівнюються з показниками двотижневої давнини\n📅 Дата звіту: {current_date}"
     
     message = "⚠️ Виявлено падіння трафіку:\n\n"
     
@@ -227,17 +227,17 @@ def analyze_traffic_changes(domains_data):
     if critical_changes:
         message += "📉 Різке падіння:\n"
         for change in sorted(critical_changes, key=lambda x: x['change']):
-            message += f"{change['domain']}: {change['traffic']:,} (падіння {abs(change['change']):.1f}% порівняно з минулим тижнем)\n"
+            message += f"{change['domain']}: {change['traffic']:,} (падіння {abs(change['change']):.1f}% порівняно з двотижневою давниною)\n"
         message += "\n"
     
     # Затем выводим последовательные падения
     if consecutive_drops:
         message += "📉 Послідовне падіння:\n"
         for drop in sorted(consecutive_drops, key=lambda x: x['change']):
-            message += f"{drop['domain']}: {drop['traffic']:,} (падіння {abs(drop['change']):.1f}% порівняно з минулим тижнем, попер. падіння {abs(drop['prev_change']):.1f}%)\n"
+            message += f"{drop['domain']}: {drop['traffic']:,} (падіння {abs(drop['change']):.1f}% порівняно з двотижневою давниною, попер. падіння {abs(drop['prev_change']):.1f}%)\n"
     
     # Добавляем пояснение и дату
-    message += f"\n📌 Всі показники порівнюються з даними тижневої давнини\n📅 Дата звіту: {current_date}"
+    message += f"\n📌 Всі показники порівнюються з даними двотижневої давнини\n📅 Дата звіту: {current_date}"
     
     return True, message
 
@@ -363,14 +363,21 @@ def run_test():
                             'history': history
                         }
             
-            # Анализируем изменения и отправляем уведомление
-            has_changes, message = analyze_traffic_changes(domains_data)
-            
-            # Додаємо інформацію про кількість доменів
-            message = f"✅ Дані про трафік успішно оновлено для {len(domains_data)} доменів\n\n" + message
-            
-            telegram_result = send_message(message, parse_mode="HTML", test_mode=False)
-            logger.info(f"Результат відправки в Telegram: {'успішно' if telegram_result else 'помилка'}")
+                    # Анализируем изменения и отправляем уведомление
+        has_changes, message = analyze_traffic_changes(domains_data)
+        
+        # Додаємо інформацію про кількість доменів
+        message = f"✅ Дані про трафік успішно оновлено для {len(domains_data)} доменів\n\n" + message
+        
+        # Відправляємо повідомлення у всі чати (test_mode=False означає відправка у всі чати, включаючи робочі)
+        telegram_result = send_message(message, parse_mode="HTML", test_mode=False)
+        logger.info(f"Результат відправки в Telegram: {'успішно' if telegram_result else 'помилка'}")
+        
+        # Додаткове логування для діагностики
+        if not telegram_result:
+            logger.error("Повідомлення не було відправлено в жоден чат! Перевірте налаштування Telegram.")
+        else:
+            logger.info("Повідомлення успішно відправлено в Telegram чати.")
             
             return True
         
@@ -444,9 +451,12 @@ def run_test():
         # Додаємо до traffic_message інформацію про кількість оновлених доменів
         traffic_message = f"✅ Дані про трафік успішно оновлено для {len(domains)} доменів\n\n" + traffic_message
         
-        # Отправляем результаты анализа в Telegram
-        if send_message(traffic_message, parse_mode="HTML", test_mode=False):  # Важные уведомления отправляем во все чаты
+        # Отправляем результаты анализа в Telegram (test_mode=False означає відправка у всі чати, включаючи робочі)
+        telegram_result = send_message(traffic_message, parse_mode="HTML", test_mode=False)
+        if telegram_result:
             logger.info("Повідомлення про зміни трафіку відправлено в Telegram")
+        else:
+            logger.error("Повідомлення про зміни трафіку НЕ БУЛО відправлено в Telegram! Перевірте налаштування.")
         
         return True
     

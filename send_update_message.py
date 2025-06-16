@@ -11,6 +11,7 @@ from datetime import datetime
 from telegram_bot import send_message
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+from config import MAIN_SHEET_ID
 
 # Настройка логирования
 logging.basicConfig(
@@ -28,8 +29,9 @@ def analyze_traffic_changes(domains_data):
     for domain, data in domains_data.items():
         history = data.get('history', [])
         if len(history) >= 2:
-            # Сортируем историю по дате
-            sorted_history = sorted(history, key=lambda x: x['date'])
+            # Сортируем историю по дате (правильно парсим даты)
+            from datetime import datetime
+            sorted_history = sorted(history, key=lambda x: datetime.strptime(x['date'], '%Y-%m-%d'))
             
             current_traffic = sorted_history[-1]['traffic']  # Последний (самый новый)
             previous_traffic = sorted_history[-3]['traffic'] if len(sorted_history) >= 3 else sorted_history[0]['traffic']  # Двухнедельной давности
@@ -127,12 +129,8 @@ def main():
         logger.error("TELEGRAM_BOT_TOKEN не найден в переменных окружения")
         return False
         
-    # Настройка доступа к Google Sheets
-    sheet_id = os.getenv('SHEET_ID')
-    if not sheet_id:
-        logger.error("SHEET_ID не найден в переменных окружения")
-        return False
-    
+    # Настройка доступа к Google Sheets - используем ID из конфигурации
+    sheet_id = MAIN_SHEET_ID
     logger.info(f"Sheet ID: {sheet_id}")
     
     # Настройка учетных данных для Google Sheets API
@@ -177,9 +175,9 @@ def main():
             # Добавляем примечание о тестовом характере данных
             traffic_message += "\n\n<i>Примітка: Це тестове повідомлення з тестовими даними, оскільки не вдалося отримати реальні дані з Google Sheets.</i>"
             
-            # Отправляем сообщение в Telegram (test_mode=False для отправки во все чаты)
+            # Отправляем сообщение в Telegram (test_mode=True только в тестовый чат)
             logger.info("Отправка тестового сообщения о трафике")
-            if send_message(traffic_message, parse_mode="HTML", test_mode=False):
+            if send_message(traffic_message, parse_mode="HTML", test_mode=True):
                 logger.info("Сообщение о трафике успешно отправлено")
                 return True
             else:
@@ -218,32 +216,64 @@ def main():
                 logger.error("Ошибка при отправке сообщения об ошибке")
                 return False
         
-        # Обрабатываем данные из таблицы
+        # Читаємо заголовки (перший рядок) для отримання реальних дат
         headers = values[0] if values else []
+        date_columns = []
+        
+        # Збираємо інформацію про колонки з датами (пропускаємо перший стовпець "Domain")
+        for col_index in range(1, len(headers)):
+            date_str = headers[col_index]
+            if date_str:  # Якщо заголовок не пустий
+                try:
+                    # Пробуємо розпарсити дату
+                    from datetime import datetime
+                    date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+                    date_columns.append({
+                        'index': col_index,
+                        'date': date_str,
+                        'date_obj': date_obj
+                    })
+                except ValueError:
+                    # Якщо не вдалося розпарсити як дату, пропускаємо
+                    continue
+        
+        # Сортуємо колонки за датою (від старих до нових для правильного аналізу)
+        date_columns.sort(key=lambda x: x['date_obj'])
+        
         domains_data = {}
         
-        for row in values[1:]:  # Пропускаем заголовки
-            if len(row) >= 2:
-                domain = row[0]
-                history = []
+        for row_index, row in enumerate(values):
+            if row_index == 0:  # Пропускаємо заголовок
+                continue
                 
-                # Собираем историю трафика
-                for i in range(1, len(row)):
-                    if i < len(headers):  # Проверяем, что у нас есть соответствующая дата в заголовках
-                        try:
-                            traffic = int(row[i])
+            if not row:  # Пропускаємо порожні рядки
+                continue
+                
+            domain = row[0] if len(row) > 0 else None
+            if not domain:
+                continue
+            
+            # Збираємо данні трафіку відповідно до відсортованих дат
+            history = []
+            for date_col in date_columns:
+                col_index = date_col['index']
+                if col_index < len(row) and row[col_index]:
+                    try:
+                        traffic_val = int(row[col_index])
+                        if traffic_val >= 0:  # Допускаємо нулеві значення
                             history.append({
-                                'date': headers[i],
-                                'traffic': traffic
+                                'date': date_col['date'],
+                                'traffic': traffic_val
                             })
-                        except (ValueError, TypeError):
-                            continue
-                
-                if history:
-                    domains_data[domain] = {
-                        'traffic': history[0]['traffic'],  # Текущий трафик в первом элементе истории
-                        'history': history
-                    }
+                    except (ValueError, TypeError):
+                        continue
+            
+            # Зберігаємо тільки домени з принаймні двома точками даних
+            if len(history) >= 2:
+                domains_data[domain] = {
+                    'traffic': history[-1]['traffic'],  # Текущий трафик - последний (самый новый)
+                    'history': history
+                }
         
         logger.info(f"Загружены данные для {len(domains_data)} доменов")
         

@@ -50,6 +50,30 @@ def get_real_traffic_data_from_sheets():
             logger.error("Немає даних в Google Sheets")
             return {}
         
+        # Читаємо заголовки (перший рядок) для отримання реальних дат
+        headers = values[0] if values else []
+        date_columns = []
+        
+        # Збираємо інформацію про колонки з датами (пропускаємо перший стовпець "Domain")
+        for col_index in range(1, len(headers)):
+            date_str = headers[col_index]
+            if date_str:  # Якщо заголовок не пустий
+                try:
+                    # Пробуємо розпарсити дату
+                    from datetime import datetime
+                    date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+                    date_columns.append({
+                        'index': col_index,
+                        'date': date_str,
+                        'date_obj': date_obj
+                    })
+                except ValueError:
+                    # Якщо не вдалося розпарсити як дату, пропускаємо
+                    continue
+        
+        # Сортуємо колонки за датою (від старих до нових для правильного аналізу)
+        date_columns.sort(key=lambda x: x['date_obj'])
+        
         domains_data = {}
         
         for row_index, row in enumerate(values):
@@ -63,26 +87,23 @@ def get_real_traffic_data_from_sheets():
             if not domain:
                 continue
             
-            # Збираємо всі значення трафіку з рядка (пропускаємо перший стовпець з доменом)
-            traffic_values = []
-            for col_index in range(1, len(row)):
-                try:
-                    if row[col_index]:  # Перевіряємо, що значення не порожнє
+            # Збираємо данні трафіку відповідно до відсортованих дат
+            history = []
+            for date_col in date_columns:
+                col_index = date_col['index']
+                if col_index < len(row) and row[col_index]:
+                    try:
                         traffic_val = int(row[col_index])
                         if traffic_val >= 0:  # Допускаємо нулеві значення
-                            traffic_values.append(traffic_val)
-                except (ValueError, TypeError):
-                    continue
+                            history.append({
+                                'date': date_col['date'],
+                                'traffic': traffic_val
+                            })
+                    except (ValueError, TypeError):
+                        continue
             
-            if len(traffic_values) >= 2:
-                # Створюємо історію з фіктивними датами (припускаємо, що дані йдуть від старих до нових)
-                history = []
-                for i, traffic in enumerate(traffic_values):
-                    history.append({
-                        'date': f'2024-{(i%12)+1:02d}-{((i//12)%28)+1:02d}',  # Фіктивні дати
-                        'traffic': traffic
-                    })
-                
+            # Зберігаємо тільки домени з принаймні двома точками даних
+            if len(history) >= 2:
                 domains_data[domain] = {
                     'history': history
                 }

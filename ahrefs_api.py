@@ -41,9 +41,9 @@ def get_current_organic_traffic(domain):
             'Authorization': f"Bearer {AHREFS_API_KEY}"
         }
         
-        # ОПТИМИЗАЦИЯ: запрашиваем только текущие данные (overview)
-        # Используем /v3/site-explorer/overview вместо metrics-history
-        endpoint = f"/v3/site-explorer/overview?target={domain}&mode=domain"
+        # ОПТИМИЗАЦИЯ: используем metrics endpoint с volume_mode=average для консистентности
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        endpoint = f"/v3/site-explorer/metrics?target={domain}&mode=domain&volume_mode=average&date={current_date}"
         
         logger.info(f"[{domain}] Оптимізований endpoint: {endpoint}")
         
@@ -91,8 +91,8 @@ def get_current_organic_traffic(domain):
 
 def get_batch_organic_traffic(domains_batch):
     """
-    BATCH ЗАПРОС: Получает трафик для нескольких доменов за один API вызов.
-    Экономит до 95% токенов API по сравнению с индивидуальными запросами.
+    ОПТИМИЗИРОВАННЫЙ BATCH ЗАПРОС: Использует правильный /batch-analysis endpoint.
+    Получает трафик для нескольких доменов за один API вызов с volume_mode=average.
     
     Args:
         domains_batch (list): Список доменов (максимум 50 доменов за раз)
@@ -113,7 +113,7 @@ def get_batch_organic_traffic(domains_batch):
     batch_size = min(len(domains_batch), 50)
     current_batch = domains_batch[:batch_size]
     
-    logger.info(f"BATCH запит для {len(current_batch)} доменів: {current_batch}")
+    logger.info(f"BATCH ANALYSIS запит для {len(current_batch)} доменів: {current_batch}")
     
     try:
         conn = http.client.HTTPSConnection("api.ahrefs.com")
@@ -124,13 +124,23 @@ def get_batch_organic_traffic(domains_batch):
             'Content-Type': "application/json"
         }
         
-        # Формируем batch запрос
-        targets = ",".join(current_batch)
-        endpoint = f"/v3/site-explorer/overview?target={targets}&mode=domain"
+        # Правильный batch endpoint с POST запросом
+        endpoint = "/v3/site-explorer/batch-analysis"
         
+        # Формируем JSON body для batch запроса
+        request_body = {
+            "targets": current_batch,
+            "mode": "domain",
+            "volume_mode": "average",  # Используем режим average как указано
+            "date": datetime.now().strftime('%Y-%m-%d')  # Текущая дата
+            # country не указываем, так как не обязательный
+        }
+        
+        json_body = json.dumps(request_body)
         logger.info(f"BATCH endpoint: {endpoint}")
+        logger.info(f"BATCH body: {json_body}")
         
-        conn.request("GET", endpoint, headers=headers)
+        conn.request("POST", endpoint, body=json_body, headers=headers)
         response = conn.getresponse()
         data = response.read()
         response_text = data.decode("utf-8")
@@ -141,22 +151,18 @@ def get_batch_organic_traffic(domains_batch):
             json_data = json.loads(response_text)
             logger.info(f"BATCH успішна відповідь отримана")
             
-            # Обрабатываем batch ответ
+            # Обрабатываем batch ответ - ожидаем массив объектов
             if isinstance(json_data, list):
-                # Если ответ в виде массива
-                for i, domain_data in enumerate(json_data):
-                    if i < len(current_batch):
-                        domain = current_batch[i]
-                        traffic = domain_data.get("org_traffic", 0)
-                        results[domain] = int(traffic)
-                        logger.info(f"[BATCH] {domain}: {traffic}")
+                for domain_data in json_data:
+                    target = domain_data.get("target", "")
+                    traffic = domain_data.get("org_traffic", 0)
+                    if target:
+                        results[target] = int(traffic)
+                        logger.info(f"[BATCH] {target}: {traffic}")
             else:
-                # Если ответ в виде объекта с одним доменом
-                if len(current_batch) == 1:
-                    domain = current_batch[0]
-                    traffic = json_data.get("org_traffic", 0)
-                    results[domain] = int(traffic)
-                    logger.info(f"[BATCH] {domain}: {traffic}")
+                # Если ответ в другом формате
+                logger.warning(f"Неочікуваний формат відповіді BATCH: {json_data}")
+                
         else:
             logger.error(f"BATCH помилка API Ahrefs ({response.status})")
             logger.error(f"BATCH відповідь: {response_text}")
@@ -168,6 +174,8 @@ def get_batch_organic_traffic(domains_batch):
                 
     except Exception as e:
         logger.error(f"BATCH неочікувана помилка: {str(e)}")
+        import traceback
+        logger.error(f"BATCH traceback: {traceback.format_exc()}")
         # Fallback: пробуем индивидуальные запросы
         logger.info("Fallback до індивідуальних запитів через помилку")
         for domain in current_batch:
@@ -204,8 +212,9 @@ def check_api_availability():
             'Authorization': f"Bearer {AHREFS_API_KEY}"
         }
         
-        # ОПТИМИЗАЦИЯ: используем overview вместо metrics-history
-        endpoint = f"/v3/site-explorer/overview?target=ahrefs.com&mode=domain"
+        # ОПТИМИЗАЦИЯ: используем metrics endpoint для проверки API
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        endpoint = f"/v3/site-explorer/metrics?target=ahrefs.com&mode=domain&volume_mode=average&date={current_date}"
         
         conn.request("GET", endpoint, headers=headers)
         response = conn.getresponse()

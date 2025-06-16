@@ -400,22 +400,22 @@ def run_test():
                             'history': history
                         }
             
-                    # Анализируем изменения и отправляем уведомление
-        has_changes, message = analyze_traffic_changes(domains_data)
-        
-        # Додаємо інформацію про кількість доменів
-        message = f"✅ Дані про трафік успішно оновлено для {len(domains_data)} доменів\n\n" + message
-        
-        # Відправляємо повідомлення у всі чати (test_mode=False означає відправка у всі чати, включаючи робочі)
-        telegram_result = send_message(message, parse_mode="HTML", test_mode=False)
-        logger.info(f"Результат відправки в Telegram: {'успішно' if telegram_result else 'помилка'}")
-        
-        # Додаткове логування для діагностики
-        if not telegram_result:
-            logger.error("Повідомлення не було відправлено в жоден чат! Перевірте налаштування Telegram.")
-        else:
-            logger.info("Повідомлення успішно відправлено в Telegram чати.")
+            # Анализируем изменения и отправляем уведомление
+            has_changes, message = analyze_traffic_changes(domains_data)
             
+            # Додаємо інформацію про кількість доменів
+            message = f"✅ Дані про трафік успішно оновлено для {len(domains_data)} доменів\n\n" + message
+            
+            # Відправляємо повідомлення у всі чати (test_mode=False означає відправка у всі чати, включаючи робочі)
+            telegram_result = send_message(message, parse_mode="HTML", test_mode=False)
+            logger.info(f"Результат відправки в Telegram: {'успішно' if telegram_result else 'помилка'}")
+            
+            # Додаткове логування для діагностики
+            if not telegram_result:
+                logger.error("Повідомлення не було відправлено в жоден чат! Перевірте налаштування Telegram.")
+            else:
+                logger.info("Повідомлення успішно відправлено в Telegram чати.")
+                
             return True
         
         # Если данных за сегодня нет, добавляем новый столбец

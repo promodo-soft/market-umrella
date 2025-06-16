@@ -18,7 +18,7 @@ from datetime import datetime, timedelta
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from telegram_bot import send_message
-from ahrefs_api import get_organic_traffic, check_api_availability
+from ahrefs_api import get_organic_traffic, get_batch_organic_traffic, check_api_availability
 
 # Встановлюємо перехоплювач невловлених виключень
 def handle_uncaught_exception(exc_type, exc_value, exc_traceback):
@@ -428,16 +428,33 @@ def run_test():
         # Подготавливаем новые данные
         new_values = [['Domain', current_date] + headers[1:] if headers else ['Domain', current_date]]
         
-        # Обрабатываем каждый домен
+        # ОПТИМИЗАЦИЯ: Получаем трафик для всех доменов через batch запросы
+        logger.info(f"🚀 ОПТИМІЗОВАНИЙ збір даних для {len(domains)} доменів через batch запити")
+        
+        # Разбиваем домены на батчи по 50 доменов
+        batch_size = 50
+        all_traffic_data = {}
+        
+        for i in range(0, len(domains), batch_size):
+            batch_domains = domains[i:i + batch_size]
+            logger.info(f"Обробляємо batch {i//batch_size + 1}: домени {i+1}-{min(i+batch_size, len(domains))}")
+            
+            # Получаем трафик для текущего batch'а
+            batch_results = get_batch_organic_traffic(batch_domains)
+            all_traffic_data.update(batch_results)
+            
+            logger.info(f"Batch {i//batch_size + 1} завершено: {len(batch_results)} доменів оброблено")
+        
+        logger.info(f"✅ Всього отримано дані для {len(all_traffic_data)} доменів з {len(domains)}")
+        
+        # Обрабатываем каждый домен с полученными данными
         for domain in domains:
-            # Получаем текущий трафик из Ahrefs
-            logger.info(f"Запрашиваем дані для домена: {domain}")
-            current_traffic = get_organic_traffic(domain)
+            current_traffic = all_traffic_data.get(domain, 0)
             logger.info(f"Домен {domain}: трафік = {current_traffic}")
             
             domain_row = [domain, str(current_traffic)]
             
-            # Добавляем исторические данные
+            # Добавляем исторические данные из Google Sheets (предыдущие значения уже есть!)
             if domain in existing_domains:
                 domain_row.extend(existing_domains[domain])
             

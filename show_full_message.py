@@ -6,6 +6,8 @@
 """
 
 from test_runner import analyze_traffic_changes
+from telegram_bot import send_message
+from config import MAIN_SHEET_ID
 import logging
 import os
 import json
@@ -19,8 +21,8 @@ logger = logging.getLogger(__name__)
 def get_real_traffic_data_from_sheets():
     """Отримує реальні дані трафіку з Google Sheets"""
     try:
-        # ID таблицы из указанной ссылки
-        SPREADSHEET_ID = '1iwr3qku-JcMMqEBTYdWeWRUXfmC9sLp_s-q-Ruxj5xs'
+        # ID таблицы из конфигурации
+        SPREADSHEET_ID = MAIN_SHEET_ID
         
         # Аутентифікація
         credentials_json = os.getenv('GOOGLE_SHEETS_CREDENTIALS')
@@ -127,6 +129,30 @@ def show_full_traffic_message():
         print(f"   - Містить секцію 'Різке падіння': {'ТАК' if 'Різке падіння' in message else 'НІ'}")
         print(f"   - Містить секцію 'Послідовне падіння': {'ТАК' if sequential_in_message else 'НІ'}")
         
+        # Отправляем в тестовый чат
+        print(f"\n🚀 Відправляємо повідомлення в тестовий чат...")
+        print(f"📏 Довжина повідомлення для відправки: {len(message)} символів")
+        
+        # Проверяем наличие токена
+        import os
+        bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
+        if not bot_token:
+            print("❌ TELEGRAM_BOT_TOKEN не знайдений в змінних середовища")
+            return
+        else:
+            print(f"✅ TELEGRAM_BOT_TOKEN знайдений (довжина: {len(bot_token)})")
+        
+        try:
+            result = send_message(message, parse_mode="HTML", test_mode=True)
+            
+            if result:
+                print("✅ Повідомлення успішно відправлено в тестовий чат!")
+            else:
+                print("❌ Помилка при відправці повідомлення")
+        except Exception as e:
+            print(f"❌ Виняток при відправці повідомлення: {e}")
+            import traceback
+            print(f"Детальна помилка: {traceback.format_exc()}")
             
     except Exception as e:
         print(f"❌ Помилка: {e}")

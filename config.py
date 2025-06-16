@@ -18,6 +18,9 @@ if not TELEGRAM_BOT_TOKEN:
 DOMAINS_FILE = 'domains.txt'
 DATA_FILE = 'traffic_data.xlsx'
 
+# Google Sheets
+MAIN_SHEET_ID = '1iwr3qku-JcMMqEBTYdWeWRUXfmC9sLp_s-q-Ruxj5xs'  # ID основной таблицы трафика
+
 # Расписание
 SCHEDULE_DAY = os.getenv('SCHEDULE_DAY', 'sunday')  # monday, tuesday, wednesday, thursday, friday, saturday, sunday
 SCHEDULE_TIME = os.getenv('SCHEDULE_TIME', '03:00')  # HH:MM в 24-часовом формате

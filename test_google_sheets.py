@@ -10,6 +10,7 @@ import os
 import json
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
+from config import MAIN_SHEET_ID
 
 # Налаштування логування
 logging.basicConfig(level=logging.INFO)
@@ -18,8 +19,8 @@ logger = logging.getLogger(__name__)
 def test_google_sheets_connection():
     """Тестує підключення до Google Sheets"""
     try:
-        # ID таблицы из указанной ссылки
-        SPREADSHEET_ID = '1iwr3qku-JcMMqEBTYdWeWRUXfmC9sLp_s-q-Ruxj5xs'
+        # ID таблицы из конфигурации
+        SPREADSHEET_ID = MAIN_SHEET_ID
         
         logger.info(f"🔗 Тестуємо підключення до Google Sheets")
         logger.info(f"📊 ID таблиці: {SPREADSHEET_ID}")

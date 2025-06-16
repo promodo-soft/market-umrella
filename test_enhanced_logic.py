@@ -17,8 +17,9 @@ logger = logging.getLogger(__name__)
 def get_real_traffic_data_from_sheets():
     """Отримує реальні дані трафіку з Google Sheets"""
     try:
-        # ID таблицы из указанной ссылки
-        SPREADSHEET_ID = '1iwr3qku-JcMMqEBTYdWeWRUXfmC9sLp_s-q-Ruxj5xs'
+        # ID таблицы из конфигурации
+        from config import MAIN_SHEET_ID
+        SPREADSHEET_ID = MAIN_SHEET_ID
         
         # Аутентифікація
         credentials_json = os.getenv('GOOGLE_SHEETS_CREDENTIALS')

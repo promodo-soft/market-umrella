@@ -309,7 +309,8 @@ def run_test():
         logger.info("Запуск тестового режима")
         
         # Настройка доступа к Google Sheets (используем ID из указанной таблицы)
-        sheet_id = '1iwr3qku-JcMMqEBTYdWeWRUXfmC9sLp_s-q-Ruxj5xs'
+        from config import MAIN_SHEET_ID
+        sheet_id = MAIN_SHEET_ID
         logger.info(f"Sheet ID: {sheet_id}")
         
         # Настройка учетных данных для Google Sheets API

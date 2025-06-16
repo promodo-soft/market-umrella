@@ -411,7 +411,89 @@ def send_message_to_chats(message: str, parse_mode: str = None, test_mode: bool 
     
     return success
 
-def send_message(message: str, parse_mode: str = None, test_mode: bool = False) -> bool:
+def send_message_to_specific_chats(message: str, target_chat_ids: List[str], parse_mode: str = None) -> bool:
+    """
+    Отправляет сообщение в указанные чаты.
+    
+    Args:
+        message (str): Текст сообщения
+        target_chat_ids (List[str]): Список ID чатов для отправки
+        parse_mode (str, optional): Режим форматирования текста
+        
+    Returns:
+        bool: True, если сообщение отправлено хотя бы в один чат, иначе False
+    """
+    logger.info(f"Відправка повідомлення в конкретні чати: {target_chat_ids}")
+    
+    if not TELEGRAM_BOT_TOKEN:
+        logger.error("Токен Telegram бота не налаштований")
+        return False
+    
+    success = False
+    
+    # Розбиваємо довге повідомлення на частини (макс 4000 символов для безпеки)
+    max_length = 4000
+    message_parts = []
+    
+    if len(message) <= max_length:
+        message_parts = [message]
+    else:
+        # Розбиваємо повідомлення по рядках
+        lines = message.split('\n')
+        current_part = ""
+        
+        for line in lines:
+            if len(current_part + line + '\n') <= max_length:
+                current_part += line + '\n'
+            else:
+                if current_part:
+                    message_parts.append(current_part.rstrip())
+                    current_part = line + '\n'
+                else:
+                    # Якщо один рядок довший за максимум, розбиваємо його
+                    while len(line) > max_length:
+                        message_parts.append(line[:max_length])
+                        line = line[max_length:]
+                    current_part = line + '\n'
+        
+        if current_part:
+            message_parts.append(current_part.rstrip())
+    
+    logger.info(f"Повідомлення розбито на {len(message_parts)} частин")
+    
+    for chat_id in target_chat_ids:
+        chat_success = False
+        for i, part in enumerate(message_parts):
+            try:
+                # Додаємо номер частини якщо їх більше одної
+                final_message = part
+                if len(message_parts) > 1:
+                    final_message = f"📄 Частина {i+1}/{len(message_parts)}\n\n{part}"
+                
+                logger.info(f"Відправка повідомлення в чат {chat_id} (частина {i+1}/{len(message_parts)})")
+                get_updater().bot.send_message(
+                    chat_id=int(chat_id),
+                    text=final_message,
+                    parse_mode=parse_mode
+                )
+                chat_success = True
+                logger.info(f"Частина {i+1}/{len(message_parts)} успішно відправлена в чат {chat_id}")
+            except Exception as e:
+                logger.error(f"Помилка при відправці частини {i+1} в чат {chat_id}: {str(e)}")
+                try:
+                    # Пробуем отправить без форматирования
+                    get_updater().bot.send_message(chat_id=int(chat_id), text=final_message)
+                    chat_success = True
+                    logger.info(f"Частина {i+1} успішно відправлена без форматування в чат {chat_id}")
+                except Exception as e2:
+                    logger.error(f"Повторна помилка при відправці частини {i+1} в чат {chat_id}: {str(e2)}")
+        
+        if chat_success:
+            success = True
+    
+    return success
+
+def send_message(message: str, parse_mode: str = None, test_mode: bool = False, target_chat_ids: List[str] = None) -> bool:
     """
     Отправляет сообщение в чат Telegram.
     Совместимость со старым кодом + отправка во все чаты.
@@ -420,6 +502,7 @@ def send_message(message: str, parse_mode: str = None, test_mode: bool = False) 
         message (str): Текст сообщения
         parse_mode (str, optional): Режим форматирования текста
         test_mode (bool): Если True, исключает отправку в рабочие чаты
+        target_chat_ids (List[str], optional): Список конкретных чатов для отправки
         
     Returns:
         bool: True, если сообщение отправлено успешно, иначе False
@@ -431,6 +514,10 @@ def send_message(message: str, parse_mode: str = None, test_mode: bool = False) 
         return False
     
     logger.info(f"Токен бота знайдений, довжина: {len(TELEGRAM_BOT_TOKEN)}")
+    
+    # Если указаны конкретные чаты, отправляем только в них
+    if target_chat_ids:
+        return send_message_to_specific_chats(message, target_chat_ids, parse_mode)
     
     # Отправляем сообщение во все чаты
     return send_message_to_chats(message, parse_mode, test_mode)

@@ -67,9 +67,8 @@ def analyze_traffic_changes(domains_data):
     is_fresh, days_old = is_data_fresh(domains_data, max_days=7)
     
     if not is_fresh:
-        warning_message = f"⚠️ Дані застарілі!\n\nОстанній успішний збір позицій був {days_old} днів тому.\nПовідомлення про зміни трафіку не відправляються через застарілість даних.\n\n💡 Перевірте API ліміти Ahrefs або запустіть збір даних вручну."
-        logger.warning(f"Дані застарілі на {days_old} днів. Пропускаємо аналіз змін трафіку.")
-        return False, warning_message
+        logger.warning(f"Дані застарілі на {days_old} днів. Аналіз змін трафіку НЕ виконується. Повідомлення НЕ відправляються.")
+        return False, None  # Возвращаем None чтобы сообщение не отправлялось
     
     logger.info(f"Дані свіжі ({days_old} днів тому). Аналізуємо зміни трафіку для {len(domains_data)} доменів.")
     
@@ -223,6 +222,11 @@ def main():
             
             has_changes, traffic_message = analyze_traffic_changes(domains_data)
             
+            # Если сообщение None (данные устарели), не отправляем ничего
+            if traffic_message is None:
+                logger.info("Тестове повідомлення не відправляється через застарілість даних.")
+                return True
+            
             # Добавляем примечание о тестовом характере данных
             traffic_message += "\n\n<i>Примітка: Це тестове повідомлення з тестовими даними, оскільки не вдалося отримати реальні дані з Google Sheets.</i>"
             
@@ -330,6 +334,11 @@ def main():
         
         # Анализируем изменения трафика
         has_changes, traffic_message = analyze_traffic_changes(domains_data)
+        
+        # Если сообщение None (данные устарели), не отправляем ничего
+        if traffic_message is None:
+            logger.info("Повідомлення не відправляється через застарілість даних.")
+            return True
         
         # Отправляем результаты анализа в Telegram
         logger.info("Отправка сообщения о трафике во все чаты, включая рабочий")

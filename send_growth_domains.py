@@ -228,8 +228,8 @@ def send_growth_report():
             is_fresh, days_old = is_data_fresh_for_growth(growth_domains, max_days=7)
             
             if not is_fresh:
-                logger.warning(f"Дані застарілі на {days_old} днів. Не відправляємо звіт про ріст.")
-                message = f"⚠️ Дані застарілі!\n\nОстанній успішний збір позицій був {days_old} днів тому.\nЗвіт про домени з ростом не відправляється через застарілість даних.\n\n💡 Перевірте API ліміти Ahrefs або запустіть збір даних вручну."
+                logger.warning(f"Дані застарілі на {days_old} днів. Звіт про ріст НЕ відправляється.")
+                return True  # Завершаем функцию без отправки сообщений
             else:
                 logger.info(f"Дані свіжі ({days_old} днів тому). Формуємо звіт про ріст.")
                 message = format_growth_message(growth_domains)

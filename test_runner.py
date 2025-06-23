@@ -214,9 +214,8 @@ def analyze_traffic_changes(domains_data):
     is_fresh, days_old = is_data_fresh(domains_data, max_days=7)
     
     if not is_fresh:
-        warning_message = f"⚠️ Дані застарілі!\n\nОстанній успішний збір позицій був {days_old} днів тому.\nПовідомлення про зміни трафіку не відправляються через застарілість даних.\n\n💡 Перевірте API ліміти Ahrefs або запустіть збір даних вручну."
-        logger.warning(f"Дані застарілі на {days_old} днів. Пропускаємо аналіз змін трафіку.")
-        return False, warning_message
+        logger.warning(f"Дані застарілі на {days_old} днів. Пропускаємо аналіз змін трафіку. Повідомлення НЕ відправляються.")
+        return False, None  # Возвращаем None чтобы сообщение не отправлялось
     
     critical_changes = []
     consecutive_drops = []
@@ -453,6 +452,11 @@ def run_test():
             # Анализируем изменения и отправляем уведомление
             has_changes, message = analyze_traffic_changes(domains_data)
             
+            # Если сообщение None (данные устарели), не отправляем ничего
+            if message is None:
+                logger.info("Повідомлення не відправляється через застарілість даних.")
+                return True
+            
             # Додаємо інформацію про кількість доменів
             message = f"✅ Дані про трафік успішно оновлено для {len(domains_data)} доменів\n\n" + message
             
@@ -551,6 +555,11 @@ def run_test():
         
         # Анализируем изменения трафика
         has_changes, traffic_message = analyze_traffic_changes(domains_data)
+        
+        # Если сообщение None (данные устарели), не отправляем ничего
+        if traffic_message is None:
+            logger.info("Повідомлення не відправляється через застарілість даних.")
+            return True
         
         # Додаємо до traffic_message інформацію про кількість оновлених доменів
         traffic_message = f"✅ Дані про трафік успішно оновлено для {len(domains)} доменів\n\n" + traffic_message

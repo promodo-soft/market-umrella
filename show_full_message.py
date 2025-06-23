@@ -130,29 +130,54 @@ def show_full_traffic_message():
         print(f"📊 Проаналізовано {len(domains_data)} доменів\n")
         
         # Аналізуємо зміни трафіку
-        has_changes, message = analyze_traffic_changes(domains_data)
+        has_changes, drops_message, growth_message = analyze_traffic_changes(domains_data)
         
-        print(f"📏 Довжина повідомлення: {len(message)} символів")
-        print(f"🔍 Критичні зміни виявлено: {'ТАК' if has_changes else 'НІ'}")
-        print(f"📨 Буде розбито на частини: {'ТАК' if len(message) > 4000 else 'НІ'}")
+        # Если сообщения None (данные устарели), показываем это
+        if drops_message is None and growth_message is None:
+            print("⚠️ Повідомлення не генерується через застарілість даних.")
+            return
         
-        print(f"\n{'='*60}")
-        print("ПОВНЕ ПОВІДОМЛЕННЯ:")
-        print(f"{'='*60}")
-        print(message)
-        print(f"{'='*60}")
+        print("="*80)
+        print("📋 ПОВНЕ ПОВІДОМЛЕННЯ ПРО ТРАФІК:")
+        print("="*80)
+        
+        # Показываем общую информацию
+        print(f"✅ Дані про трафік для {len(domains_data)} доменів\n")
+        
+        # Показываем сообщение о падениях если есть
+        if drops_message:
+            print("📉 ПАДІННЯ ТРАФІКУ:")
+            print(drops_message)
+            print("\n" + "="*80 + "\n")
+        
+        # Показываем сообщение о росте если есть
+        if growth_message:
+            print("📈 РІСТ ТРАФІКУ:")
+            print(growth_message)
+            print("\n" + "="*80 + "\n")
+        
+        # Формируем полное сообщение для подсчета символов
+        full_message = f"✅ Дані про трафік для {len(domains_data)} доменів\n\n"
+        if drops_message:
+            full_message += drops_message + "\n\n"
+        if growth_message:
+            full_message += growth_message
+        
+        print(f"📊 Довжина повідомлення: {len(full_message)} символів")
+        print(f"🔄 Буде розбито на частини: {'ТАК' if len(full_message) > 4000 else 'НІ'}")
+        print("="*80)
         
         # Подсчитаем секции
-        sharp_count = message.count('падіння') - message.count('Послідовне падіння') - message.count('падіння трафіку')
-        sequential_in_message = 'Послідовне падіння' in message
+        sharp_count = full_message.count('падіння') - full_message.count('Послідовне падіння') - full_message.count('падіння трафіку')
+        sequential_in_message = 'Послідовне падіння' in full_message
         
         print(f"\n📈 Статистика повідомлення:")
-        print(f"   - Містить секцію 'Різке падіння': {'ТАК' if 'Різке падіння' in message else 'НІ'}")
+        print(f"   - Містить секцію 'Різке падіння': {'ТАК' if 'Різке падіння' in full_message else 'НІ'}")
         print(f"   - Містить секцію 'Послідовне падіння': {'ТАК' if sequential_in_message else 'НІ'}")
         
         # Отправляем в тестовый чат
         print(f"\n🚀 Відправляємо повідомлення в тестовий чат...")
-        print(f"📏 Довжина повідомлення для відправки: {len(message)} символів")
+        print(f"📏 Довжина повідомлення для відправки: {len(full_message)} символів")
         
         # Проверяем наличие токена
         import os
@@ -164,7 +189,7 @@ def show_full_traffic_message():
             print(f"✅ TELEGRAM_BOT_TOKEN знайдений (довжина: {len(bot_token)})")
         
         try:
-            result = send_message(message, parse_mode="HTML", test_mode=True)
+            result = send_message(full_message, parse_mode="HTML", test_mode=True)
             
             if result:
                 print("✅ Повідомлення успішно відправлено в тестовий чат!")

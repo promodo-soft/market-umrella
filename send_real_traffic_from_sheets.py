@@ -112,31 +112,29 @@ def main():
     logger.info(f"Аналізуємо дані для {len(domains_data)} доменів")
     
     # Аналізуємо зміни трафіку
-    has_critical_changes, message = analyze_traffic_changes(domains_data)
+    has_critical_changes, drops_message, growth_message = analyze_traffic_changes(domains_data)
     
-    logger.info(f"Результат аналізу: критичні зміни = {has_critical_changes}")
-    logger.info(f"Довжина повідомлення: {len(message)} символів")
+    # Если сообщения None (данные устарели), не отправляем ничего
+    if drops_message is None and growth_message is None:
+        logger.info("Повідомлення не відправляється через застарілість даних.")
+        return True
     
-    if has_critical_changes:
-        logger.info("Виявлено критичні зміни! Відправляємо повідомлення в тестовий чат...")
-        
-        # Відправляємо повідомлення в тестовий чат
-        test_chat_id = -600437720  # Кря_Team - Dream Team🤗
-        
-        try:
-            result = send_message(test_chat_id, message)
-            if result:
-                logger.info("Повідомлення успішно відправлено в тестовий чат!")
-                print(f"✅ Повідомлення відправлено! Довжина: {len(message)} символів")
-                print(f"📋 Повідомлення: {message[:300]}...")
-            else:
-                logger.error("Помилка при відправці повідомлення")
-        except Exception as e:
-            logger.error(f"Помилка при відправці: {e}")
-    else:
-        logger.info("Критичних змін не виявлено")
-        print(f"✅ Критичних змін не виявлено")
-        print(f"📋 Повідомлення: {message}")
+    # Формируем объединенное сообщение
+    full_message = f"✅ Реальні дані з Google Sheets для {len(domains_data)} доменів\n\n"
+    
+    # Добавляем сообщение о падениях если есть
+    if drops_message:
+        full_message += drops_message + "\n\n"
+    
+    # Добавляем сообщение о росте если есть
+    if growth_message:
+        full_message += growth_message
+    
+    logger.info(f"Сообщение для отправки: {full_message}")
+    
+    # Відправляємо повідомлення в тестовий чат
+    print(f"🚀 Відправляємо повідомлення про {'критичні зміни' if has_critical_changes else 'стан трафіку'}...")
+    result = send_message(full_message, parse_mode="HTML", test_mode=True)
 
 if __name__ == "__main__":
     main() 

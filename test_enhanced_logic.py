@@ -113,33 +113,32 @@ def main():
     logger.info(f"📊 Аналізуємо дані для {len(domains_data)} доменів")
     
     # Аналізуємо зміни трафіку з оновленою логікою
-    has_critical_changes, message = analyze_traffic_changes(domains_data)
+    has_critical_changes, drops_message, growth_message = analyze_traffic_changes(domains_data)
     
-    logger.info(f"🔍 Результат аналізу: критичні зміни = {has_critical_changes}")
-    logger.info(f"📝 Довжина повідомлення: {len(message)} символів")
+    # Если сообщения None (данные устарели), не отправляем ничего
+    if drops_message is None and growth_message is None:
+        logger.info("Повідомлення не відправляється через застарілість даних.")
+        return True
     
-    print("="*80)
-    print("📋 ПОВНЕ ПОВІДОМЛЕННЯ ПРО ТРАФІК:")
-    print("="*80)
-    print(message)
-    print("="*80)
+    # Формируем объединенное сообщение
+    full_message = f"🧪 ТЕСТ: Розширений аналіз для {len(domains_data)} доменів\n\n"
     
-    if has_critical_changes:
-        logger.info("⚠️ Виявлено критичні зміни! Відправляємо повідомлення в тестовий чат...")
-        
-        # Відправляємо повідомлення в тестовий чат
-        test_chat_id = -600437720  # Кря_Team - Dream Team🤗
-        
-        try:
-            result = send_message(test_chat_id, message)
-            if result:
-                logger.info("✅ Повідомлення успішно відправлено в тестовий чат!")
-            else:
-                logger.error("❌ Помилка при відправці повідомлення")
-        except Exception as e:
-            logger.error(f"❌ Помилка при відправці: {e}")
+    # Добавляем сообщение о падениях если есть
+    if drops_message:
+        full_message += drops_message + "\n\n"
+    
+    # Добавляем сообщение о росте если есть
+    if growth_message:
+        full_message += growth_message
+    
+    logger.info(f"Сообщение для отправки: {full_message}")
+    
+    # Отправляем в тестовый чат
+    logger.info("Отправка тестового сообщения в Telegram")
+    if send_message(full_message, parse_mode="HTML", test_mode=True):
+        logger.info("✅ Повідомлення успішно відправлено в тестовий чат!")
     else:
-        logger.info("✅ Критичних змін не виявлено")
+        logger.error("❌ Помилка при відправці повідомлення")
 
 if __name__ == "__main__":
     main() 

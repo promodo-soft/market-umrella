@@ -1,8 +1,9 @@
-name: Traffic Monitor
+name: Traffic Monitor (Combined)
 
 on:
   schedule:
-    - cron: '0 10 * * 1'  # Запуск щопонеділка о 10:00 GMT+2
+    - cron: '0 7 26-31 5 1'  # 26 мая 2025 (первый запуск)
+    - cron: '0 7 */14 * 1'   # Дальше — раз в 2 недели по понедельникам
   workflow_dispatch:      # Можливість запуску вручну з опціональними параметрами
     inputs:
       test_mode:
@@ -48,7 +49,7 @@ jobs:
         AHREFS_API_KEY: ${{ secrets.AHREFS_API_KEY }}
       run: python test_local.py
     
-    - name: Run traffic monitor
+    - name: Run traffic monitor (falls & growth analysis)
       if: ${{ github.event.inputs.test_mode != 'true' }}
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}

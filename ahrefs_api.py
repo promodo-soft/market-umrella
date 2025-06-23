@@ -4,6 +4,9 @@ import logging
 from datetime import datetime, timedelta
 from config import AHREFS_API_KEY, AHREFS_API_URL
 
+# Глобальный флаг для отслеживания лимитов API
+_api_limit_reached = False
+
 # Настройка логирования
 logging.basicConfig(
     level=logging.DEBUG,
@@ -14,6 +17,26 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+def is_api_limit_reached():
+    """Проверяет, достигнут ли лимит API"""
+    return _api_limit_reached
+
+def reset_api_limit_flag():
+    """Сбрасывает флаг лимита API (для тестирования или нового цикла)"""
+    global _api_limit_reached
+    _api_limit_reached = False
+    logger.info("Флаг лимита API скинуто")
+
+def _set_api_limit_reached(status_code, response_text=""):
+    """Устанавливает флаг лимита API при получении ошибки 403"""
+    global _api_limit_reached
+    if status_code == 403:
+        _api_limit_reached = True
+        logger.error(f"🚫 ЛІМІТ API ДОСЯГНУТО! Статус: {status_code}. Подальші запити будуть пропущені.")
+        logger.error(f"Відповідь API: {response_text}")
+        return True
+    return False
 
 def get_current_organic_traffic(domain):
     """
@@ -26,6 +49,11 @@ def get_current_organic_traffic(domain):
     Returns:
         int: Значение органического трафика или 0 в случае ошибки
     """
+    # Проверяем, не достигнут ли лимит API
+    if _api_limit_reached:
+        logger.warning(f"[{domain}] ⚠️ Пропускаємо запит - ліміт API вже досягнуто")
+        return 0
+    
     response_text = None
     try:
         if not AHREFS_API_KEY:
@@ -53,6 +81,10 @@ def get_current_organic_traffic(domain):
         response_text = data.decode("utf-8")
         
         logger.info(f"[{domain}] Статус відповіді: {response.status}")
+        
+        # Проверяем на лимит API (403)
+        if _set_api_limit_reached(response.status, response_text):
+            return 0
         
         if response.status == 200:
             json_data = json.loads(response_text)
@@ -102,6 +134,14 @@ def get_batch_organic_traffic(domains_batch):
     """
     results = {}
     
+    # Проверяем, не достигнут ли лимит API
+    if _api_limit_reached:
+        logger.warning(f"⚠️ Пропускаємо BATCH запит для {len(domains_batch)} доменів - ліміт API вже досягнуто")
+        # Возвращаем нулевые значения для всех доменов
+        for domain in domains_batch:
+            results[domain] = 0
+        return results
+    
     if not AHREFS_API_KEY:
         logger.error("AHREFS_API_KEY не знайдений в змінних середовища")
         return results
@@ -147,6 +187,13 @@ def get_batch_organic_traffic(domains_batch):
         
         logger.info(f"BATCH статус відповіді: {response.status}")
         
+        # Проверяем на лимит API (403) для batch запроса
+        if _set_api_limit_reached(response.status, response_text):
+            # Возвращаем нулевые значения для всех доменов в batch
+            for domain in current_batch:
+                results[domain] = 0
+            return results
+        
         if response.status == 200:
             json_data = json.loads(response_text)
             logger.info(f"BATCH успішна відповідь отримана")
@@ -167,19 +214,37 @@ def get_batch_organic_traffic(domains_batch):
             logger.error(f"BATCH помилка API Ahrefs ({response.status})")
             logger.error(f"BATCH відповідь: {response_text}")
             
-            # Fallback: пробуем индивидуальные запросы
-            logger.info("Fallback до індивідуальних запитів")
-            for domain in current_batch:
-                results[domain] = get_current_organic_traffic(domain)
+            # Fallback: пробуем индивидуальные запросы только если лимит не достигнут
+            if not _api_limit_reached:
+                logger.info("Fallback до індивідуальних запитів")
+                for domain in current_batch:
+                    results[domain] = get_current_organic_traffic(domain)
+                    # Если в процессе индивидуальных запросов достигли лимита, прекращаем
+                    if _api_limit_reached:
+                        logger.warning("Ліміт API досягнуто під час fallback запитів. Припиняємо обробку.")
+                        break
+            else:
+                # Если лимит уже достигнут, возвращаем нули
+                for domain in current_batch:
+                    results[domain] = 0
                 
     except Exception as e:
         logger.error(f"BATCH неочікувана помилка: {str(e)}")
         import traceback
         logger.error(f"BATCH traceback: {traceback.format_exc()}")
-        # Fallback: пробуем индивидуальные запросы
-        logger.info("Fallback до індивідуальних запитів через помилку")
-        for domain in current_batch:
-            results[domain] = get_current_organic_traffic(domain)
+        # Fallback: пробуем индивидуальные запросы только если лимит не достигнут
+        if not _api_limit_reached:
+            logger.info("Fallback до індивідуальних запитів через помилку")
+            for domain in current_batch:
+                results[domain] = get_current_organic_traffic(domain)
+                # Если в процессе индивидуальных запросов достигли лимита, прекращаем
+                if _api_limit_reached:
+                    logger.warning("Ліміт API досягнуто під час fallback запитів через помилку. Припиняємо обробку.")
+                    break
+        else:
+            # Если лимит уже достигнут, возвращаем нули
+            for domain in current_batch:
+                results[domain] = 0
     finally:
         conn.close()
         
@@ -218,12 +283,17 @@ def check_api_availability():
         
         conn.request("GET", endpoint, headers=headers)
         response = conn.getresponse()
+        response_text = response.read().decode('utf-8')
+        
+        # Проверяем на лимит API (403)
+        if _set_api_limit_reached(response.status, response_text):
+            return False
         
         if response.status == 200:
             logger.info("API Ahrefs доступний")
             return True
         else:
-            logger.error(f"API Ahrefs недоступний. Код відповіді: {response.status} - {response.read().decode('utf-8')}")
+            logger.error(f"API Ahrefs недоступний. Код відповіді: {response.status} - {response_text}")
             return False
             
     except Exception as e:

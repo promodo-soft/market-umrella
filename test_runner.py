@@ -18,7 +18,7 @@ from datetime import datetime, timedelta
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from telegram_bot import send_message
-from ahrefs_api import get_organic_traffic, get_batch_organic_traffic, check_api_availability, is_api_limit_reached, reset_api_limit_flag
+from ahrefs_api import get_organic_traffic, get_batch_organic_traffic, check_api_availability, is_api_limit_reached, reset_api_limit_flag, get_api_limit_message
 
 # Встановлюємо перехоплювач невловлених виключень
 def handle_uncaught_exception(exc_type, exc_value, exc_traceback):
@@ -577,6 +577,20 @@ def run_test():
                 
             return True
         
+        # Проверяем доступность API перед началом сбора данных
+        if not check_api_availability():
+            logger.error("❌ API Ahrefs недоступно. Збір даних скасовано.")
+            logger.error("⚠️ НОВИЙ СТОВПЕЦЬ З ДАТОЮ НЕ БУДЕ СТВОРЕНО через недоступність API.")
+            
+            # Отправляем уведомление о проблеме с API
+            api_error_message = get_api_limit_message()
+            if api_error_message:
+                send_message(api_error_message, parse_mode='Markdown', test_mode=False)
+            else:
+                send_message("❌ *Помилка*\n\nAPI Ahrefs недоступно. Збір даних трафіку скасовано.", 
+                           parse_mode='Markdown', test_mode=False)
+            return False
+        
         # Если данных за сегодня нет, добавляем новый столбец
         logger.info(f"Додаємо дані за {current_date}")
         
@@ -609,8 +623,18 @@ def run_test():
                 logger.error(f"Оброблено {len(all_traffic_data)} доменів з {len(domains)} до досягнення ліміту.")
                 logger.error("⚠️ Збір даних припинено через досягнення лімітів токенів API.")
                 logger.error("🔄 Наступний запуск буде можливий після відновлення лімітів API.")
+                logger.error("📊 СТОВПЕЦЬ З НОВОЮ ДАТОЮ НЕ БУДЕ СТВОРЕНО через досягнення лімітів API.")
                 
-                # Возвращаемся без обновления Google Sheets и без отправки сообщений
+                # Отправляем уведомление о достижении лимитов API
+                api_error_message = get_api_limit_message()
+                if api_error_message:
+                    api_error_message += f"\n\n📊 Оброблено {len(all_traffic_data)} з {len(domains)} доменів до досягнення ліміту."
+                    send_message(api_error_message, parse_mode='Markdown', test_mode=False)
+                else:
+                    send_message(f"🚫 *Увага!*\n\nДосягнуто ліміт API Ahrefs!\n\n📊 Оброблено {len(all_traffic_data)} з {len(domains)} доменів.\n⚠️ Стовпець з новою датою не створено.", 
+                               parse_mode='Markdown', test_mode=False)
+                
+                # Возвращаемся без обновления Google Sheets
                 return False
         
         logger.info(f"✅ Всього отримано дані для {len(all_traffic_data)} доменів з {len(domains)}")

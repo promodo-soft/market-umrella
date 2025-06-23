@@ -9,8 +9,7 @@ from config import (
     SCHEDULE_DAY, SCHEDULE_TIME, TIMEZONE, 
     TRAFFIC_DECREASE_THRESHOLD, Mode
 )
-from ahrefs_api import get_organic_traffic, check_api_availability
-from data_manager import load_domains, update_traffic_data, save_traffic_data, load_traffic_data
+from ahrefs_api import get_organic_traffic, check_api_availability, is_api_limit_reached, get_api_limit_message
 from telegram_bot import notify_traffic_update, send_message, run_bot
 
 # Настройка логирования

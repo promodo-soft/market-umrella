@@ -28,6 +28,15 @@ def reset_api_limit_flag():
     _api_limit_reached = False
     logger.info("Флаг лимита API скинуто")
 
+def get_api_limit_message():
+    """Возвращает сообщение о достижении лимитов API для уведомлений"""
+    if _api_limit_reached:
+        return "🚫 *Увага!*\n\nДосягнуто ліміт API Ahrefs!\n\n" \
+               "📊 Збір даних трафіку призупинено до відновлення лімітів.\n" \
+               "⏰ Ліміти зазвичай оновлюються щодня о 00:00 UTC.\n\n" \
+               "🔄 Наступна спроба буде виконана автоматично за розкладом."
+    return None
+
 def _set_api_limit_reached(status_code, response_text=""):
     """Устанавливает флаг лимита API при получении ошибки 403"""
     global _api_limit_reached
@@ -35,6 +44,13 @@ def _set_api_limit_reached(status_code, response_text=""):
         _api_limit_reached = True
         logger.error(f"🚫 ЛІМІТ API ДОСЯГНУТО! Статус: {status_code}. Подальші запити будуть пропущені.")
         logger.error(f"Відповідь API: {response_text}")
+        
+        # Проверяем, содержит ли ответ информацию о лимитах
+        if "API units limit reached" in response_text:
+            logger.error("💥 API UNITS LIMIT EXCEEDED - потрібно зачекати до відновлення лімітів")
+        elif "Rate limit" in response_text:
+            logger.error("⏰ RATE LIMIT EXCEEDED - забагато запитів за короткий час")
+        
         return True
     return False
 
@@ -52,7 +68,7 @@ def get_current_organic_traffic(domain):
     # Проверяем, не достигнут ли лимит API
     if _api_limit_reached:
         logger.warning(f"[{domain}] ⚠️ Пропускаємо запит - ліміт API вже досягнуто")
-        return 0
+        return None  # Возвращаем None вместо 0 для индикации недоступности API
     
     response_text = None
     try:
@@ -84,7 +100,7 @@ def get_current_organic_traffic(domain):
         
         # Проверяем на лимит API (403)
         if _set_api_limit_reached(response.status, response_text):
-            return 0
+            return None  # Возвращаем None при достижении лимитов
         
         if response.status == 200:
             json_data = json.loads(response_text)

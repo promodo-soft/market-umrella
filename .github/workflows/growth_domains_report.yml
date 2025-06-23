@@ -10,9 +10,10 @@ on:
         default: '-1001177341323'
         type: string
   
-  # Автоматический запуск каждый понедельник в 08:00 UTC (после основного анализа)
+  # Автоматический запуск каждые 2 недели по понедельникам в 08:00 UTC (через час после основного анализа)
   schedule:
-    - cron: '0 8 * * 1'
+    - cron: '0 8 26-31 5 1'  # 26 мая 2025 (первый запуск)
+    - cron: '0 8 */14 * 1'   # Дальше — раз в 2 недели по понедельникам
 
 jobs:
   send-growth-report:
@@ -45,6 +46,6 @@ jobs:
         GOOGLE_SHEETS_CREDENTIALS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}
         GROWTH_REPORT_CHAT_ID: ${{ github.event.inputs.chat_id || '-1001177341323' }}
       run: |
-        echo "Отправка отчета о доменах с ростом 15%+"
+        echo "Отправка отчета о доменах с ростом 15%+ (синхронизировано с основным анализом)"
         echo "Target chat ID: $GROWTH_REPORT_CHAT_ID"
         python send_growth_domains.py 

@@ -20,8 +20,59 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+def is_data_fresh(domains_data, max_days=7):
+    """
+    Проверяет, насколько свежие данные о трафике.
+    
+    Args:
+        domains_data (dict): Словарь с данными о трафике по доменам
+        max_days (int): Максимальное количество дней для считания данных свежими
+        
+    Returns:
+        tuple: (свежие ли данные, количество дней с последнего обновления)
+    """
+    if not domains_data:
+        return False, 999
+    
+    # Ищем самую свежую дату в данных
+    latest_date = None
+    for domain, data in domains_data.items():
+        history = data.get('history', [])
+        if history:
+            # Сортируем историю по дате
+            sorted_history = sorted(history, key=lambda x: x['date'])
+            domain_latest = sorted_history[-1]['date']
+            
+            try:
+                domain_date = datetime.strptime(domain_latest, '%Y-%m-%d')
+                if latest_date is None or domain_date > latest_date:
+                    latest_date = domain_date
+            except ValueError:
+                continue
+    
+    if latest_date is None:
+        return False, 999
+    
+    # Вычисляем разницу в днях
+    current_date = datetime.now()
+    days_diff = (current_date - latest_date).days
+    
+    logger.info(f"Остання дата даних: {latest_date.strftime('%Y-%m-%d')}, днів тому: {days_diff}")
+    
+    return days_diff <= max_days, days_diff
+
 def analyze_traffic_changes(domains_data):
     """Анализирует изменения трафика и формирует сообщение для Telegram"""
+    # Проверяем свежесть данных
+    is_fresh, days_old = is_data_fresh(domains_data, max_days=7)
+    
+    if not is_fresh:
+        warning_message = f"⚠️ Дані застарілі!\n\nОстанній успішний збір позицій був {days_old} днів тому.\nПовідомлення про зміни трафіку не відправляються через застарілість даних.\n\n💡 Перевірте API ліміти Ahrefs або запустіть збір даних вручну."
+        logger.warning(f"Дані застарілі на {days_old} днів. Пропускаємо аналіз змін трафіку.")
+        return False, warning_message
+    
+    logger.info(f"Дані свіжі ({days_old} днів тому). Аналізуємо зміни трафіку для {len(domains_data)} доменів.")
+    
     critical_changes = []
     consecutive_drops = []
     triple_drops = []

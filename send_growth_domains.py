@@ -25,6 +25,43 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+def is_data_fresh_for_growth(growth_domains, max_days=7):
+    """
+    Проверяет, насколько свежие данные о трафике для отчёта о росте.
+    
+    Args:
+        growth_domains (dict): Словарь с данными о доменах с ростом
+        max_days (int): Максимальное количество дней для считания данных свежими
+        
+    Returns:
+        tuple: (свежие ли данные, количество дней с последнего обновления)
+    """
+    if not growth_domains:
+        return False, 999
+    
+    # Ищем самую свежую дату в данных
+    latest_date = None
+    for domain, data in growth_domains.items():
+        current_date_str = data.get('current_date')
+        if current_date_str:
+            try:
+                current_date_obj = datetime.strptime(current_date_str, '%Y-%m-%d')
+                if latest_date is None or current_date_obj > latest_date:
+                    latest_date = current_date_obj
+            except ValueError:
+                continue
+    
+    if latest_date is None:
+        return False, 999
+    
+    # Вычисляем разницу в днях
+    current_date = datetime.now()
+    days_diff = (current_date - latest_date).days
+    
+    logger.info(f"Остання дата даних для звіту про ріст: {latest_date.strftime('%Y-%m-%d')}, днів тому: {days_diff}")
+    
+    return days_diff <= max_days, days_diff
+
 def get_credentials():
     """Получает учетные данные для Google Sheets API"""
     try:
@@ -187,7 +224,15 @@ def send_growth_report():
             logger.info("Нет доменов с ростом 15%+ или ошибка получения данных")
             message = "🔍 Домени з ростом трафіку 15%+ не знайдені або сталася помилка отримання даних"
         else:
-            message = format_growth_message(growth_domains)
+            # Проверяем свежесть данных перед отправкой отчёта о росте
+            is_fresh, days_old = is_data_fresh_for_growth(growth_domains, max_days=7)
+            
+            if not is_fresh:
+                logger.warning(f"Дані застарілі на {days_old} днів. Не відправляємо звіт про ріст.")
+                message = f"⚠️ Дані застарілі!\n\nОстанній успішний збір позицій був {days_old} днів тому.\nЗвіт про домени з ростом не відправляється через застарілість даних.\n\n💡 Перевірте API ліміти Ahrefs або запустіть збір даних вручну."
+            else:
+                logger.info(f"Дані свіжі ({days_old} днів тому). Формуємо звіт про ріст.")
+                message = format_growth_message(growth_domains)
         
         # ID чата для отправки (можно задать через переменную окружения или использовать "Новий чат")
         target_chat_id = os.getenv('GROWTH_REPORT_CHAT_ID', '-1001177341323')  # По умолчанию чат "Новий чат"

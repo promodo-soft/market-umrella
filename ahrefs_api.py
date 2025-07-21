@@ -103,24 +103,48 @@ def get_current_organic_traffic(domain):
             return None  # Возвращаем None при достижении лимитов
         
         if response.status == 200:
-            json_data = json.loads(response_text)
+            try:
+                json_data = json.loads(response_text)
+            except json.JSONDecodeError as e:
+                logger.error(f"[{domain}] Помилка парсингу JSON: {e}")
+                logger.error(f"[{domain}] Перші 500 символів відповіді: {response_text[:500]}")
+                return 0
+            
+            # Логируем полную структуру для отладки (GitHub Actions замаскирует чувствительные данные)
             logger.info(f"[{domain}] Успішна відповідь: {response_text}")
             
-            # Отладочная информация о структуре ответа
-            logger.debug(f"[{domain}] Ключі верхнього рівня JSON: {list(json_data.keys())}")
+            # Проверяем структуру ответа детально
+            logger.info(f"[{domain}] Тип відповіді: {type(json_data)}")
+            logger.info(f"[{domain}] Ключі верхнього рівня: {list(json_data.keys()) if isinstance(json_data, dict) else 'Не словник'}")
             
-            # Получаем текущий трафик из overview
-            # Проверяем два варианта структуры ответа
-            if "metrics" in json_data:
+            # Пробуем получить данные напрямую из корня (для совместимости со старым API)
+            traffic = json_data.get("org_traffic", 0) if isinstance(json_data, dict) else 0
+            
+            # Если не нашли в корне, ищем в metrics
+            if traffic == 0 and isinstance(json_data, dict) and "metrics" in json_data:
                 metrics = json_data.get("metrics", {})
-                logger.debug(f"[{domain}] Об'єкт metrics: {metrics}")
-                traffic = metrics.get("org_traffic", 0)
-            else:
-                # Fallback: если metrics нет, пробуем получить напрямую
-                traffic = json_data.get("org_traffic", 0)
-                logger.debug(f"[{domain}] org_traffic напрямую з JSON: {traffic}")
+                logger.info(f"[{domain}] Знайдено об'єкт metrics, ключі: {list(metrics.keys()) if isinstance(metrics, dict) else 'Не словник'}")
+                traffic = metrics.get("org_traffic", 0) if isinstance(metrics, dict) else 0
             
-            logger.info(f"[{domain}] Поточний трафік: {traffic}")
+            # Дополнительная проверка - может данные во вложенном объекте metrics.metrics
+            if traffic == 0 and isinstance(json_data, dict):
+                # Рекурсивный поиск org_traffic
+                def find_org_traffic(obj, path=""):
+                    if isinstance(obj, dict):
+                        if "org_traffic" in obj:
+                            logger.info(f"[{domain}] Знайдено org_traffic по шляху {path}: {obj['org_traffic']}")
+                            return obj["org_traffic"]
+                        for key, value in obj.items():
+                            result = find_org_traffic(value, f"{path}.{key}")
+                            if result is not None:
+                                return result
+                    return None
+                
+                found_traffic = find_org_traffic(json_data)
+                if found_traffic is not None:
+                    traffic = found_traffic
+            
+            logger.info(f"[{domain}] Фінальний трафік: {traffic}")
             return int(traffic)
             
         elif response.status == 401:
@@ -228,16 +252,24 @@ def get_batch_organic_traffic(domains_batch):
             
             # Обрабатываем batch ответ - ожидаем массив объектов
             if isinstance(json_data, list):
-                for domain_data in json_data:
+                for idx, domain_data in enumerate(json_data):
                     target = domain_data.get("target", "")
                     
-                    # Проверяем два варианта структуры ответа
-                    if "metrics" in domain_data:
-                        metrics = domain_data.get("metrics", {})
-                        traffic = metrics.get("org_traffic", 0)
-                    else:
-                        # Fallback: если metrics нет, пробуем получить напрямую
-                        traffic = domain_data.get("org_traffic", 0)
+                    # Рекурсивный поиск org_traffic в объекте
+                    def find_org_traffic(obj, path=""):
+                        if isinstance(obj, dict):
+                            if "org_traffic" in obj:
+                                return obj["org_traffic"]
+                            for key, value in obj.items():
+                                result = find_org_traffic(value, f"{path}.{key}")
+                                if result is not None:
+                                    return result
+                        return None
+                    
+                    traffic = find_org_traffic(domain_data)
+                    if traffic is None:
+                        traffic = 0
+                        logger.warning(f"[BATCH] Не знайдено org_traffic для {target} в об'єкті {idx}")
                     
                     if target:
                         results[target] = int(traffic)

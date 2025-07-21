@@ -106,9 +106,20 @@ def get_current_organic_traffic(domain):
             json_data = json.loads(response_text)
             logger.info(f"[{domain}] Успішна відповідь: {response_text}")
             
+            # Отладочная информация о структуре ответа
+            logger.debug(f"[{domain}] Ключі верхнього рівня JSON: {list(json_data.keys())}")
+            
             # Получаем текущий трафик из overview
-            metrics = json_data.get("metrics", {})
-            traffic = metrics.get("org_traffic", 0)
+            # Проверяем два варианта структуры ответа
+            if "metrics" in json_data:
+                metrics = json_data.get("metrics", {})
+                logger.debug(f"[{domain}] Об'єкт metrics: {metrics}")
+                traffic = metrics.get("org_traffic", 0)
+            else:
+                # Fallback: если metrics нет, пробуем получить напрямую
+                traffic = json_data.get("org_traffic", 0)
+                logger.debug(f"[{domain}] org_traffic напрямую з JSON: {traffic}")
+            
             logger.info(f"[{domain}] Поточний трафік: {traffic}")
             return int(traffic)
             
@@ -219,8 +230,15 @@ def get_batch_organic_traffic(domains_batch):
             if isinstance(json_data, list):
                 for domain_data in json_data:
                     target = domain_data.get("target", "")
-                    metrics = domain_data.get("metrics", {})
-                    traffic = metrics.get("org_traffic", 0)
+                    
+                    # Проверяем два варианта структуры ответа
+                    if "metrics" in domain_data:
+                        metrics = domain_data.get("metrics", {})
+                        traffic = metrics.get("org_traffic", 0)
+                    else:
+                        # Fallback: если metrics нет, пробуем получить напрямую
+                        traffic = domain_data.get("org_traffic", 0)
+                    
                     if target:
                         results[target] = int(traffic)
                         logger.info(f"[BATCH] {target}: {traffic}")

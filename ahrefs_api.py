@@ -107,7 +107,8 @@ def get_current_organic_traffic(domain):
             logger.info(f"[{domain}] Успішна відповідь: {response_text}")
             
             # Получаем текущий трафик из overview
-            traffic = json_data.get("org_traffic", 0)
+            metrics = json_data.get("metrics", {})
+            traffic = metrics.get("org_traffic", 0)
             logger.info(f"[{domain}] Поточний трафік: {traffic}")
             return int(traffic)
             
@@ -218,7 +219,8 @@ def get_batch_organic_traffic(domains_batch):
             if isinstance(json_data, list):
                 for domain_data in json_data:
                     target = domain_data.get("target", "")
-                    traffic = domain_data.get("org_traffic", 0)
+                    metrics = domain_data.get("metrics", {})
+                    traffic = metrics.get("org_traffic", 0)
                     if target:
                         results[target] = int(traffic)
                         logger.info(f"[BATCH] {target}: {traffic}")

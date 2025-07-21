@@ -86,9 +86,8 @@ def get_current_organic_traffic(domain):
         }
         
         # ОПТИМИЗАЦИЯ: используем metrics endpoint с volume_mode=average для консистентности
-        # и select для получения только org_traffic
         current_date = datetime.now().strftime('%Y-%m-%d')
-        endpoint = f"/v3/site-explorer/metrics?target={domain}&mode=domain&volume_mode=average&date={current_date}&select=org_traffic"
+        endpoint = f"/v3/site-explorer/metrics?target={domain}&mode=domain&volume_mode=average&date={current_date}"
         
         logger.info(f"[{domain}] Оптимізований endpoint: {endpoint}")
         
@@ -221,13 +220,11 @@ def get_batch_organic_traffic(domains_batch):
         endpoint = "/v3/site-explorer/batch-analysis"
         
         # Формируем JSON body для batch запроса
-        # ОПТИМИЗАЦИЯ: добавляем select для получения только org_traffic
         request_body = {
             "targets": current_batch,
             "mode": "domain",
             "volume_mode": "average",  # Используем режим average как указано
-            "date": datetime.now().strftime('%Y-%m-%d'),  # Текущая дата
-            "select": ["org_traffic"]  # Запрашиваем только органический трафик
+            "date": datetime.now().strftime('%Y-%m-%d')  # Текущая дата
         }
         
         json_body = json.dumps(request_body)
@@ -347,9 +344,9 @@ def check_api_availability():
             'Authorization': f"Bearer {AHREFS_API_KEY}"
         }
         
-        # ОПТИМИЗАЦИЯ: используем metrics endpoint для проверки API с минимальным набором данных
+        # ОПТИМИЗАЦИЯ: используем metrics endpoint для проверки API
         current_date = datetime.now().strftime('%Y-%m-%d')
-        endpoint = f"/v3/site-explorer/metrics?target=ahrefs.com&mode=domain&volume_mode=average&date={current_date}&select=org_traffic"
+        endpoint = f"/v3/site-explorer/metrics?target=ahrefs.com&mode=domain&volume_mode=average&date={current_date}"
         
         conn.request("GET", endpoint, headers=headers)
         response = conn.getresponse()

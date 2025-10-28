@@ -27,8 +27,6 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         architecture: 'x64'
-        cache: 'pip'
-        cache-dependency-path: 'requirements.txt'
 
     - name: Display Python information
       run: |
@@ -38,7 +36,10 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip setuptools wheel
-        pip uninstall -y numpy pandas
+        pip cache purge
+        pip uninstall -y numpy pandas openpyxl || true
+        python -m pip install --force-reinstall --no-cache-dir numpy==1.24.3
+        python -m pip install --force-reinstall --no-cache-dir pandas==2.0.3
         python -m pip install --no-cache-dir -r requirements.txt
     
     - name: Run local test (if test_mode is enabled)

@@ -22,10 +22,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip setuptools wheel
-        python -m pip install --only-binary=:all: numpy==1.23.5
-        python -m pip install --only-binary=:all: pandas==1.5.3
-        grep -v "pandas==" requirements.txt > requirements_no_pandas.txt
-        python -m pip install --prefer-binary -r requirements_no_pandas.txt
+        python -m pip install -r requirements.txt
     
     - name: Run Telegram test
       env:

@@ -213,24 +213,24 @@ def notify_traffic_update(domains_data, mode='production'):
             previous_change = None
             triple_change = None
             
-            # Проверяем условие падения на 11% при последнем съеме
-            if last_change <= -11:
+            # Проверяем условие падения на 16% при последнем съеме
+            if last_change <= -16:
                 should_notify = True
-            
-            # Проверяем условие двух последовательных падений по 5%
+
+            # Проверяем условие двух последовательных падений по 11%
             if len(history) >= 3:
                 traffic_before_previous = last_entries[-3]['traffic']  # Измерение перед предыдущим
                 if traffic_before_previous >= 1000:
                     previous_change = ((traffic_previous - traffic_before_previous) / traffic_before_previous) * 100
-                    if previous_change <= -5 and last_change <= -5:
+                    if previous_change <= -11 and last_change <= -11:
                         should_notify = True
-            
-            # Новое условие: падение более 3% в трех последних измерениях подряд
+
+            # Новое условие: падение более 6% в трех последних измерениях подряд
             if len(history) >= 4:
                 traffic_3ago = last_entries[-4]['traffic']
                 if traffic_3ago >= 1000:
                     change_2 = ((traffic_before_previous - traffic_3ago) / traffic_3ago) * 100
-                    if change_2 <= -3 and previous_change is not None and previous_change <= -3 and last_change <= -3:
+                    if change_2 <= -6 and previous_change is not None and previous_change <= -6 and last_change <= -6:
                         should_notify = True
                         triple_change = change_2
             
@@ -279,11 +279,11 @@ def notify_traffic_update(domains_data, mode='production'):
 
 
             # Формируем сообщение в зависимости от типа падения
-            if change <= -11:
+            if change <= -16:
                 message += f"{domain}: {traffic:,} (📉 {change:.1f}% - різке падіння)\n"
-            elif prev_change <= -5 and change <= -5:
+            elif prev_change <= -11 and change <= -11:
                 message += f"{domain}: {traffic:,} (📉 {change:.1f}%, попер. {prev_change:.1f}%)\n"
-            elif triple_change != 0 and triple_change <= -3 and prev_change <= -3 and change <= -3:
+            elif triple_change != 0 and triple_change <= -6 and prev_change <= -6 and change <= -6:
                 message += f"{domain}: {traffic:,} (📉 {change:.1f}%, три поспіль падіння: {triple_change:.1f}%, {prev_change:.1f}%, {change:.1f}%)\n"
             else:
                 message += f"{domain}: {traffic:,} (�� {change:.1f}%)\n"

@@ -25,6 +25,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip setuptools wheel
+        pip uninstall -y numpy pandas
         python -m pip install --no-cache-dir -r requirements.txt
     
     - name: Send message to working chat

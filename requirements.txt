@@ -9,3 +9,4 @@ python-dotenv==1.0.0
 pandas==2.0.3
 pytz==2023.3
 schedule==1.2.0
+packaging==23.2

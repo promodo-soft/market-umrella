@@ -9,7 +9,7 @@ from config import (
     SCHEDULE_DAY, SCHEDULE_TIME, TIMEZONE, 
     TRAFFIC_DECREASE_THRESHOLD, Mode
 )
-from ahrefs_api import get_organic_traffic, check_api_availability, is_api_limit_reached, get_api_limit_message
+from ahrefs_api import get_organic_traffic, check_api_availability, is_api_limit_reached, get_api_limit_message, should_skip_execution_due_to_limit
 from telegram_bot import notify_traffic_update, send_message, run_bot
 
 # Настройка логирования
@@ -26,13 +26,22 @@ logger = logging.getLogger(__name__)
 def collect_traffic_data(mode: str = 'production', send_notifications: bool = True):
     """
     Собирает данные о трафике для всех доменов.
-    
+
     Args:
         mode (str): Режим работы ('production' или 'test')
         send_notifications (bool): Отправлять ли уведомления в Telegram
     """
     logger.info(f"Начало сбора данных о трафике (режим: {mode})")
-    
+
+    # Проверка: нужно ли пропустить выполнение из-за лимита API
+    if should_skip_execution_due_to_limit():
+        logger.info("Виконання скрипту пропущено - ліміт API досягнуто, очікуємо 24 число")
+        if send_notifications:
+            limit_message = get_api_limit_message()
+            if limit_message:
+                send_message(limit_message, parse_mode='Markdown')
+        return
+
     # Проверка доступности API
     if not check_api_availability():
         if send_notifications:

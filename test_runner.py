@@ -18,7 +18,7 @@ from datetime import datetime, timedelta
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from telegram_bot import send_message
-from ahrefs_api import get_organic_traffic, get_batch_organic_traffic, check_api_availability, is_api_limit_reached, reset_api_limit_flag, get_api_limit_message
+from ahrefs_api import get_organic_traffic, get_batch_organic_traffic, check_api_availability, is_api_limit_reached, reset_api_limit_flag, get_api_limit_message, should_skip_execution_due_to_limit
 
 # Встановлюємо перехоплювач невловлених виключень
 def handle_uncaught_exception(exc_type, exc_value, exc_traceback):
